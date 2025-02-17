@@ -7,28 +7,17 @@ typedef struct inp {
     unsigned long GreatestCommonDivisor;
 } inp;
 
-void Swap (inp *data){
-    unsigned tmp = (*data).first;
-    (*data).first = (*data).second;
-    (*data).second = tmp;
-}
-
-void GreatestCommonDivisor (inp *data){
-    unsigned long i = 0;
-    if ((*data).first > (*data).second)
-        Swap(data);
-
-    (*data).GreatestCommonDivisor = (*data).first;
-
-    while (1){
-        if (! ((*data).first % (*data).GreatestCommonDivisor || (*data).second % (*data).GreatestCommonDivisor))
-            return;
-        i++;
-        while ((*data).first % i)
-            i++;
-        (*data).GreatestCommonDivisor = (*data).first / i;
+int GreatestCommonDivisor (inp data){
+    while (data.first && data.second){
+        if (data.first > data.second){
+            data.first =  data.first % data.second;
+        } else {
+            data.second = data.second % data.first;
+        }
     }
-    return;
+    if (data.first)
+        return data.first;
+    return data.second;
 }
 
 int main(){
@@ -41,7 +30,7 @@ int main(){
 
     for (i = 0; i < counter; i++){
         scanf("%lu %lu", &input[i].first, &input[i].second);
-        GreatestCommonDivisor(&(input[i]));
+        input[i].GreatestCommonDivisor = GreatestCommonDivisor(input[i]);
     }
     for (i = 0; i < counter; i++){
         printf("%lu", input[i].GreatestCommonDivisor);
