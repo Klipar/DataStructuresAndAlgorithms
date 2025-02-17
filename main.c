@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef struct inp {
+typedef struct {
     unsigned long first;
     unsigned long second;
     unsigned long GreatestCommonDivisor;
