@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "chrono": "c",
+        "functional": "c",
+        "span": "c",
+        "sstream": "c"
+    }
+}
