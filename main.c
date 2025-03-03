@@ -83,5 +83,7 @@ int main(){
         else
             printf("%d\n", result[i]);
     }
+    free (result);
+    free (arr);
     return 0;
 }
