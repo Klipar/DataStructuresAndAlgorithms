@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "chrono": "c",
+        "functional": "c",
+        "span": "c",
+        "sstream": "c",
+        "random": "c"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
+}
