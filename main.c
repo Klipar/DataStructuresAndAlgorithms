@@ -10,7 +10,7 @@ char test (char *buffer){
     int error = 0;
     while (1){
         ch = getchar();
-        if (ch == '\n' || ch == '\n'){
+        if (ch == '\n' || ch == EOF){
             if (buffer[i] != '\0')
                 i++;
             return (error + i);
