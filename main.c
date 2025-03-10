@@ -1,8 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-// ( ), [ ], <>, or { }
-
 char test (char *buffer){
     char ch;
     buffer[0] = '0';
@@ -54,5 +52,6 @@ int main(){
     }
 
     free (buffer);
+    free (errors);
     return 0;
 }
