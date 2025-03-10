@@ -4,41 +4,33 @@
 // ( ), [ ], <>, or { }
 
 char test (char *buffer){
-    char ch = getchar();
+    char ch;
+    buffer[0] = '0';
     int i = 0;
-    buffer[i] = ch;
     int error = 0;
     while (1){
         ch = getchar();
-        if (ch == '\n' || ch == EOF){
-            if (buffer[i] != '\0')
-                i++;
-            return (error + i);
-        }
 
-        if (ch == '('||
-            ch == '['||
-            ch == '<'||
-            ch == '{'){
+        if ((ch == '\n' || ch == EOF)) break;
+
+        if (ch == '('|| ch == '['|| ch == '<'|| ch == '{'){
                 i++;
                 buffer[i] = ch;
                 continue;
             }
-        if (buffer[i] == '\0' && (ch == ')'||
-                        ch == ']'||
-                        ch == '>'||
-                        ch == '}'))
+
+        if (i == 0 && (ch != ')' || ch != ']' || ch != '>' || ch != '}')){
             error++;
-        if (buffer[i] == '(' && ch != ')' ||
-            buffer[i] == '[' && ch != ']' ||
-            buffer[i] == '<' && ch != '>' ||
-            buffer[i] == '{' && ch != '}'  ) {
-                error++;
-            }
-        buffer[i] = '\0';
-        if (i > 0){
-            i--;
+            continue;
         }
+
+        if (buffer[i] == '(' && ch != ')' || buffer[i] == '[' && ch != ']' || buffer[i] == '<' && ch != '>' || buffer[i] == '{' && ch != '}'  )
+            error++;
+
+        buffer[i] = '\0';
+        if (i > 0)
+            i--;
+
     }
     return error + i;
 }
