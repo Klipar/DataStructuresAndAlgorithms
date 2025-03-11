@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-char test (char *buffer){
+int test (char *buffer){
     char ch;
     buffer[0] = '0';
     int i = 0;
@@ -35,14 +35,13 @@ char test (char *buffer){
 
 int main(){
     char * buffer = (char*)malloc (sizeof(char)*100000);
-    char N;
+    int N;
     scanf("%d", &N);
     getchar();
-    char * errors = (char*)malloc (sizeof(char)*N);
+    int * errors = (int*)malloc (sizeof(int)*N);
 
-    for (int i = 0; i < N; i++){
+    for (int i = 0; i < N; i++)
         errors[i] = test(buffer);
-    }
 
     for (int i = 0; i < N; i++){
         if (i+1 == N)
