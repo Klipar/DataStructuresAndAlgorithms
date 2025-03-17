@@ -31,22 +31,24 @@ tree_2_3* Tree_2_3_Add(tree_2_3 *root, int value){
             }
             root->isRightExist = 1;
         } else {
-            if (root->leftValue > value){
-                root->leftNode = initNode(value);
-                root->midleNode = initNode(root->rightValue);
-            } else if (root->rightValue < value){
-                root->leftNode = initNode(root->leftValue);
-                root->midleNode = initNode(value);
+            tree_2_3 *tmp;
+            if (root->leftValue > value){           // value < root->leftValue < root->rightValue
+                tmp = initNode(root->leftValue);
+                tmp->leftNode = initNode(value);
+                tmp->rightNode = root;
                 root->leftValue = root->rightValue;
-                root->rightValue = root->isRightExist = 0;
-            } else {
-                root->leftNode = initNode(root->leftValue);
-                root->midleNode = initNode(root->rightValue);
-                root->leftValue = value;
+            } else if (root->rightValue < value){   // root->leftValue < root->rightValue < value
+                tmp = initNode(root->rightValue);
+                tmp->leftNode = root;
+                tmp->rightNode = initNode(value);
+            } else {                                // root->leftValue < value < root->rightValue
+                tmp = initNode(value);
+                tmp->leftNode = root;
+                tmp->rightNode = initNode(root->rightValue);
             }
-            root->rightValue = root->isRightExist = 0;
+            root->isRightExist = 0;
         }
-        return root;
+        return tmp;
     }
 
 
