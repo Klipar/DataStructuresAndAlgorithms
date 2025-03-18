@@ -26,16 +26,16 @@ tree_2_3* Tree_2_3_Insert(tree_2_3 *root, int value){
             if (root->leftValue > value){
                 root->rightValue = root->leftValue;
                 root->leftValue = value;
-            }else if (root->rightValue < value){ //delete this condition in case allowed duplication
+            }else
                 root->rightValue = value;
-            }
+
             root->isRightExist = true;
             return root;
         } else {
             if (root->leftValue > value){           // value < root->leftValue < root->rightValue
                 tmp = initNode(root->leftValue);
                 tmp->leftNode = initNode(value);
-                tmp->rightNode = root;
+                tmp->midleNode = root;
                 root->leftValue = root->rightValue;
             } else if (root->rightValue < value){   // root->leftValue < root->rightValue < value
                 tmp = initNode(root->rightValue);
@@ -49,9 +49,7 @@ tree_2_3* Tree_2_3_Insert(tree_2_3 *root, int value){
             root->isRightExist = false;
         }
         return tmp;
-    }
-
-    if (value < root->leftValue){
+    }else if (value < root->leftValue){
         tmp = Tree_2_3_Insert(root->leftNode, value);
 
         if (root->leftNode == tmp){
@@ -68,26 +66,37 @@ tree_2_3* Tree_2_3_Insert(tree_2_3 *root, int value){
                     free (tmp);
                     return root;
                 }
+            } else {
+                tree_2_3 *newRoot = initNode(root->leftValue);
+                newRoot->leftNode = tmp;
+                newRoot->midleNode = root;
+                root->leftValue = root->rightValue;
+                root->isRightExist = false;
+                root->leftNode = root->midleNode;
+                root->midleNode = root->rightNode;
+                root->rightNode = NULL;
+                return newRoot;
             }
         }
 
-    } else if (value > root->leftValue && !root->isRightExist){
+    } else if (value >= root->leftValue && !root->isRightExist){
         tmp = Tree_2_3_Insert(root->midleNode, value);
+
         if (root->midleNode == tmp) {
             return root;
 
         } else {
-            if (!tmp->isRightExist){
-                root->isRightExist = true;
-                root->rightValue = tmp->leftValue;
-                root->midleNode = tmp->leftNode;
-                root->rightNode = tmp->midleNode;
-                free (tmp);
-                return root;
-            }
+            root->isRightExist = true;
+            root->rightValue = tmp->leftValue;
+            root->midleNode = tmp->leftNode;
+            root->rightNode = tmp->midleNode;
+            free (tmp);
+            return root;
         }
+
     } else if (value > root->rightValue && root->isRightExist){
         tmp = Tree_2_3_Insert(root->rightNode, value);
+
         if (root->rightNode == tmp) {
             return root;
 
@@ -96,13 +105,25 @@ tree_2_3* Tree_2_3_Insert(tree_2_3 *root, int value){
             newRoot->leftNode = root;
             root->isRightExist = false;
             root->rightNode = NULL;
-            newRoot->rightNode = tmp;
+            newRoot->midleNode = tmp;
             return newRoot;
         }
-    } else {
+    } else { // value in the midle
         tmp = Tree_2_3_Insert(root->midleNode, value);
-        if (root->midleNode == tmp)
+        if (root->midleNode == tmp){
             return root;
+        }else {
+            tree_2_3 *newRoot = initNode(tmp->leftValue);
+            newRoot->midleNode = initNode(root->rightValue);
+            newRoot->midleNode->leftNode = tmp->midleNode;
+            newRoot->midleNode->midleNode = root->rightNode;
+            newRoot->leftNode = root;
+            root->isRightExist = false;
+            root->rightNode = NULL;
+            newRoot->leftNode->midleNode = tmp->leftNode;
+            free (tmp);
+            return newRoot;
+        }
     }
 
     return root;
@@ -121,11 +142,10 @@ void Tree_2_3_Free(tree_2_3 *root){
 
 int main(){
     tree_2_3 *root = NULL;
-    for (int i = 0; i < 10; i++){
+    for (int i = -4; i <= 2; i++){
         root = Tree_2_3_Insert(root, i);
-        printTree(root, 0);
     }
-    printTree(root, 0);
+
     Tree_2_3_Free(root);
     return 0;
 }
