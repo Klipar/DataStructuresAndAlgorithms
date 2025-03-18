@@ -7,7 +7,7 @@ typedef struct tree_2_3 {
     int rightValue;
     bool isRightExist;
     struct tree_2_3 *leftNode;
-    struct tree_2_3 *midleNode;
+    struct tree_2_3 *middleNode;
     struct tree_2_3 *rightNode;
 } tree_2_3;
 
@@ -21,7 +21,7 @@ tree_2_3* Tree_2_3_Insert(tree_2_3 *root, int value){
     if (!root)
         return initNode(value);
     tree_2_3 *tmp;
-    if (!root->leftNode && !root->midleNode && !root->rightNode){
+    if (!root->leftNode && !root->middleNode && !root->rightNode){
         if (!root->isRightExist){
             if (root->leftValue > value){
                 root->rightValue = root->leftValue;
@@ -35,16 +35,16 @@ tree_2_3* Tree_2_3_Insert(tree_2_3 *root, int value){
             if (root->leftValue > value){           // value < root->leftValue < root->rightValue
                 tmp = initNode(root->leftValue);
                 tmp->leftNode = initNode(value);
-                tmp->midleNode = root;
+                tmp->middleNode = root;
                 root->leftValue = root->rightValue;
             } else if (root->rightValue < value){   // root->leftValue < root->rightValue < value
                 tmp = initNode(root->rightValue);
                 tmp->leftNode = root;
-                tmp->midleNode = initNode(value);
+                tmp->middleNode = initNode(value);
             } else {                                // root->leftValue < value < root->rightValue
                 tmp = initNode(value);
                 tmp->leftNode = root;
-                tmp->midleNode = initNode(root->rightValue);
+                tmp->middleNode = initNode(root->rightValue);
             }
             root->isRightExist = false;
         }
@@ -60,36 +60,36 @@ tree_2_3* Tree_2_3_Insert(tree_2_3 *root, int value){
                     root->isRightExist = true;
                     root->rightValue = root->leftValue;
                     root->leftValue = tmp->leftValue;
-                    root->rightNode = root->midleNode;
+                    root->rightNode = root->middleNode;
                     root->leftNode = tmp->leftNode;
-                    root->midleNode = tmp->midleNode;
+                    root->middleNode = tmp->middleNode;
                     free (tmp);
                     return root;
                 }
             } else {
                 tree_2_3 *newRoot = initNode(root->leftValue);
                 newRoot->leftNode = tmp;
-                newRoot->midleNode = root;
+                newRoot->middleNode = root;
                 root->leftValue = root->rightValue;
                 root->isRightExist = false;
-                root->leftNode = root->midleNode;
-                root->midleNode = root->rightNode;
+                root->leftNode = root->middleNode;
+                root->middleNode = root->rightNode;
                 root->rightNode = NULL;
                 return newRoot;
             }
         }
 
     } else if (value >= root->leftValue && !root->isRightExist){
-        tmp = Tree_2_3_Insert(root->midleNode, value);
+        tmp = Tree_2_3_Insert(root->middleNode, value);
 
-        if (root->midleNode == tmp) {
+        if (root->middleNode == tmp) {
             return root;
 
         } else {
             root->isRightExist = true;
             root->rightValue = tmp->leftValue;
-            root->midleNode = tmp->leftNode;
-            root->rightNode = tmp->midleNode;
+            root->middleNode = tmp->leftNode;
+            root->rightNode = tmp->middleNode;
             free (tmp);
             return root;
         }
@@ -105,22 +105,22 @@ tree_2_3* Tree_2_3_Insert(tree_2_3 *root, int value){
             newRoot->leftNode = root;
             root->isRightExist = false;
             root->rightNode = NULL;
-            newRoot->midleNode = tmp;
+            newRoot->middleNode = tmp;
             return newRoot;
         }
     } else { // value in the midle
-        tmp = Tree_2_3_Insert(root->midleNode, value);
-        if (root->midleNode == tmp){
+        tmp = Tree_2_3_Insert(root->middleNode, value);
+        if (root->middleNode == tmp){
             return root;
         }else {
             tree_2_3 *newRoot = initNode(tmp->leftValue);
-            newRoot->midleNode = initNode(root->rightValue);
-            newRoot->midleNode->leftNode = tmp->midleNode;
-            newRoot->midleNode->midleNode = root->rightNode;
+            newRoot->middleNode = initNode(root->rightValue);
+            newRoot->middleNode->leftNode = tmp->middleNode;
+            newRoot->middleNode->middleNode = root->rightNode;
             newRoot->leftNode = root;
             root->isRightExist = false;
             root->rightNode = NULL;
-            newRoot->leftNode->midleNode = tmp->leftNode;
+            newRoot->leftNode->middleNode = tmp->leftNode;
             free (tmp);
             return newRoot;
         }
@@ -134,7 +134,7 @@ void Tree_2_3_Free(tree_2_3 *root){
         return;
 
     Tree_2_3_Free(root->leftNode);
-    Tree_2_3_Free(root->midleNode);
+    Tree_2_3_Free(root->middleNode);
     Tree_2_3_Free(root->rightNode);
 
     free(root);
@@ -142,9 +142,8 @@ void Tree_2_3_Free(tree_2_3 *root){
 
 int main(){
     tree_2_3 *root = NULL;
-    for (int i = -4; i <= 2; i++){
+    for (int i = -4; i <= 10; i++)
         root = Tree_2_3_Insert(root, i);
-    }
 
     Tree_2_3_Free(root);
     return 0;
