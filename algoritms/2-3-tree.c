@@ -140,6 +140,22 @@ void Tree_2_3_Free(tree_2_3 *root){
     free(root);
     }
 
+bool Tree_2_3_Search (tree_2_3 *root, int value){
+    if (root == NULL) return false;
+
+    if (root->leftValue == value) return true;
+    if (root->rightValue == value && root->isRightExist) return true;
+
+    if (root->leftValue > value)
+        return Tree_2_3_Search(root->leftNode, value);
+
+    if (root->rightValue < value && root->isRightExist)
+        return Tree_2_3_Search(root->rightNode, value);
+
+    if (root->leftValue < value)
+        return Tree_2_3_Search(root->middleNode, value);
+}
+
 int main(){
     tree_2_3 *root = NULL;
     for (int i = -4; i <= 10; i++)

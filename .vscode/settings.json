@@ -5,7 +5,9 @@
         "span": "c",
         "sstream": "c",
         "random": "c",
-        "ranges": "cpp"
+        "ranges": "cpp",
+        "stdbool.h": "c",
+        "stdio.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
