@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 typedef struct tree_2_3 {
     int leftValue;
     int rightValue;
-    char isRightExist;
+    bool isRightExist;
     struct tree_2_3 *leftNode;
     struct tree_2_3 *midleNode;
     struct tree_2_3 *rightNode;
@@ -13,14 +14,13 @@ typedef struct tree_2_3 {
 tree_2_3* initNode(int value){
     tree_2_3* node = (tree_2_3*)calloc(1, sizeof(tree_2_3));
     node->leftValue = value;
-    node->isRightExist = 0;
     return node;
 }
 
 tree_2_3* Tree_2_3_Add(tree_2_3 *root, int value){
     if (!root)
         return initNode(value);
-
+    tree_2_3 *tmp;
     if (!root->leftNode && !root->midleNode && !root->rightNode){
         if (!root->isRightExist){
             if (root->leftValue > value){
@@ -29,9 +29,9 @@ tree_2_3* Tree_2_3_Add(tree_2_3 *root, int value){
             }else if (root->rightValue < value){ //delete this condition in case allowed duplication
                 root->rightValue = value;
             }
-            root->isRightExist = 1;
+            root->isRightExist = true;
+            return root;
         } else {
-            tree_2_3 *tmp;
             if (root->leftValue > value){           // value < root->leftValue < root->rightValue
                 tmp = initNode(root->leftValue);
                 tmp->leftNode = initNode(value);
@@ -40,18 +40,70 @@ tree_2_3* Tree_2_3_Add(tree_2_3 *root, int value){
             } else if (root->rightValue < value){   // root->leftValue < root->rightValue < value
                 tmp = initNode(root->rightValue);
                 tmp->leftNode = root;
-                tmp->rightNode = initNode(value);
+                tmp->midleNode = initNode(value);
             } else {                                // root->leftValue < value < root->rightValue
                 tmp = initNode(value);
                 tmp->leftNode = root;
-                tmp->rightNode = initNode(root->rightValue);
+                tmp->midleNode = initNode(root->rightValue);
             }
-            root->isRightExist = 0;
+            root->isRightExist = false;
         }
         return tmp;
     }
 
+    if (value < root->leftValue){
+        tmp = Tree_2_3_Add(root->leftNode, value);
 
+        if (root->leftNode == tmp){
+            return root;
+        } else {
+            if (!tmp->isRightExist){
+                if (!root->isRightExist){
+                    root->isRightExist = true;
+                    root->rightValue = root->leftValue;
+                    root->leftValue = tmp->leftValue;
+                    root->rightNode = root->midleNode;
+                    root->leftNode = tmp->leftNode;
+                    root->midleNode = tmp->midleNode;
+                    free (tmp);
+                    return root;
+                }
+            }
+        }
+
+    } else if (value > root->leftValue && !root->isRightExist){
+        tmp = Tree_2_3_Add(root->midleNode, value);
+        if (root->midleNode == tmp) {
+            return root;
+
+        } else {
+            if (!tmp->isRightExist){
+                root->isRightExist = true;
+                root->rightValue = tmp->leftValue;
+                root->midleNode = tmp->leftNode;
+                root->rightNode = tmp->midleNode;
+                free (tmp);
+                return root;
+            }
+        }
+    } else if (value > root->rightValue && root->isRightExist){
+        tmp = Tree_2_3_Add(root->rightNode, value);
+        if (root->rightNode == tmp) {
+            return root;
+
+        } else {
+            tree_2_3 *newRoot = initNode(root->rightValue);
+            newRoot->leftNode = root;
+            root->isRightExist = false;
+            root->rightNode = NULL;
+            newRoot->rightNode = tmp;
+            return newRoot;
+        }
+    } else {
+        tmp = Tree_2_3_Add(root->midleNode, value);
+        if (root->midleNode == tmp)
+            return root;
+    }
 
     return root;
 }
@@ -67,9 +119,30 @@ void Tree_2_3_Free(tree_2_3 *root){
     free(root);
     }
 
-int main(){
-    tree_2_3 *root = Tree_2_3_Add(NULL, 5);
+    void Tree_2_3_Print(tree_2_3 *root, int level) {
+        if (!root) return;
+        if (root->isRightExist)
+            Tree_2_3_Print(root->rightNode, level + 1);
 
+        for (int i = 0; i < level; i++)
+            printf("  ");
+
+        printf("%d", root->leftValue);
+        if (root->isRightExist)
+            printf("/%d", root->rightValue);
+
+        printf("\n");
+
+        Tree_2_3_Print(root->leftNode, level + 1);
+        Tree_2_3_Print(root->midleNode, level + 1);
+    }
+
+int main(){
+    tree_2_3 *root = NULL;
+    for (int i = 0; i < 10; i++)
+        root = Tree_2_3_Add(root, i);
+
+    Tree_2_3_Print(root, 0);
     Tree_2_3_Free(root);
     return 0;
 }
