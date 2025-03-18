@@ -17,7 +17,7 @@ tree_2_3* initNode(int value){
     return node;
 }
 
-tree_2_3* Tree_2_3_Add(tree_2_3 *root, int value){
+tree_2_3* Tree_2_3_Insert(tree_2_3 *root, int value){
     if (!root)
         return initNode(value);
     tree_2_3 *tmp;
@@ -52,7 +52,7 @@ tree_2_3* Tree_2_3_Add(tree_2_3 *root, int value){
     }
 
     if (value < root->leftValue){
-        tmp = Tree_2_3_Add(root->leftNode, value);
+        tmp = Tree_2_3_Insert(root->leftNode, value);
 
         if (root->leftNode == tmp){
             return root;
@@ -72,7 +72,7 @@ tree_2_3* Tree_2_3_Add(tree_2_3 *root, int value){
         }
 
     } else if (value > root->leftValue && !root->isRightExist){
-        tmp = Tree_2_3_Add(root->midleNode, value);
+        tmp = Tree_2_3_Insert(root->midleNode, value);
         if (root->midleNode == tmp) {
             return root;
 
@@ -87,7 +87,7 @@ tree_2_3* Tree_2_3_Add(tree_2_3 *root, int value){
             }
         }
     } else if (value > root->rightValue && root->isRightExist){
-        tmp = Tree_2_3_Add(root->rightNode, value);
+        tmp = Tree_2_3_Insert(root->rightNode, value);
         if (root->rightNode == tmp) {
             return root;
 
@@ -100,7 +100,7 @@ tree_2_3* Tree_2_3_Add(tree_2_3 *root, int value){
             return newRoot;
         }
     } else {
-        tmp = Tree_2_3_Add(root->midleNode, value);
+        tmp = Tree_2_3_Insert(root->midleNode, value);
         if (root->midleNode == tmp)
             return root;
     }
@@ -119,30 +119,13 @@ void Tree_2_3_Free(tree_2_3 *root){
     free(root);
     }
 
-    void Tree_2_3_Print(tree_2_3 *root, int level) {
-        if (!root) return;
-        if (root->isRightExist)
-            Tree_2_3_Print(root->rightNode, level + 1);
-
-        for (int i = 0; i < level; i++)
-            printf("  ");
-
-        printf("%d", root->leftValue);
-        if (root->isRightExist)
-            printf("/%d", root->rightValue);
-
-        printf("\n");
-
-        Tree_2_3_Print(root->leftNode, level + 1);
-        Tree_2_3_Print(root->midleNode, level + 1);
-    }
-
 int main(){
     tree_2_3 *root = NULL;
-    for (int i = 0; i < 10; i++)
-        root = Tree_2_3_Add(root, i);
-
-    Tree_2_3_Print(root, 0);
+    for (int i = 0; i < 10; i++){
+        root = Tree_2_3_Insert(root, i);
+        printTree(root, 0);
+    }
+    printTree(root, 0);
     Tree_2_3_Free(root);
     return 0;
 }
