@@ -156,6 +156,16 @@ bool Tree_2_3_Search (tree_2_3 *root, int value){
         return Tree_2_3_Search(root->middleNode, value);
 }
 
+int getMaxValue (tree_2_3 *root){ //if root is NULL, an error will occur. It is handled before calling the function
+    if (root->rightNode)
+        return getMaxValue(root->rightNode);
+    if (root->middleNode)
+        return getMaxValue(root->middleNode);
+    if (root->isRightExist)
+        return root->rightValue;
+    return root->leftValue;
+}
+
 int main(){
     tree_2_3 *root = NULL;
     for (int i = -4; i <= 10; i++)
