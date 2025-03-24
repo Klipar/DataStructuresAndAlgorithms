@@ -7,7 +7,11 @@
         "random": "c",
         "ranges": "cpp",
         "stdbool.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "stdlib.h": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
