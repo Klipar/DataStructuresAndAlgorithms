@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
 typedef struct Data {
     unsigned int ID;
@@ -464,7 +465,7 @@ int main(){
 
         root = Tree_2_3_Insert(root, data);
     }
-
+    ObsidianVisualization(root, "TreeVisualization");
     for (int i = 50; i >=0; i--)
         root = Tree_2_3_Delete(root, i);
 
