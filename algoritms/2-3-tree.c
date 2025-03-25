@@ -68,6 +68,7 @@ void ObsidianVisualization(tree_2_3 *root, const char *dirName){
 
         ObsidianVisualization(root->rightNode, "TreeVisualization");
     }
+    fclose(file);
 }
 
 tree_2_3* Tree_2_3_Insert(tree_2_3 *root, Data data){
