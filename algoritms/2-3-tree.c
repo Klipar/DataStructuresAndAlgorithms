@@ -23,6 +23,52 @@ tree_2_3* initNode(Data data){
     return node;
 }
 
+void ObsidianVisualization(tree_2_3 *root, const char *dirName){
+    if (root == NULL)
+        return;
+
+    char path [100] = {};
+    if (root->isRightExist)
+        sprintf(path + strlen(path), "%s/%d-%d.md", dirName, root->leftData.ID, root->rightData.ID);
+    else
+        sprintf(path + strlen(path), "%s/%d.md", dirName, root->leftData.ID, root->rightData.ID);
+
+    FILE *file = fopen(path, "w");
+    if (file == NULL) {
+        perror("Failed to open file!!!");
+        return;
+    }
+    if (root->isRightExist)
+        fprintf(file, "# %d | %d\n", root->leftData.ID, root->rightData.ID);
+    else {
+        fprintf(file, "# %d\n", root->leftData.ID);
+    }
+    if (root->leftNode != NULL){
+        if (root->leftNode->isRightExist)
+            fprintf(file, "Left node: [[%d-%d.md]]\n", root->leftNode->leftData.ID, root->leftNode->rightData.ID);
+        else
+            fprintf(file, "Left node: [[%d.md]]\n", root->leftNode->leftData.ID);
+
+        ObsidianVisualization(root->leftNode, "TreeVisualization");
+    }
+    if (root->middleNode != NULL){
+        if (root->middleNode->isRightExist)
+            fprintf(file, "Middle node: [[%d-%d.md]]\n", root->middleNode->leftData.ID, root->middleNode->rightData.ID);
+        else
+            fprintf(file, "Middle node: [[%d.md]]\n", root->middleNode->leftData.ID);
+
+        ObsidianVisualization(root->middleNode, "TreeVisualization");
+    }
+    if (root->rightNode != NULL && root->isRightExist){
+        if (root->rightNode->isRightExist)
+            fprintf(file, "Right node: [[%d-%d.md]]\n", root->rightNode->leftData.ID, root->rightNode->rightData.ID);
+        else
+            fprintf(file, "Right node: [[%d.md]]\n", root->rightNode->leftData.ID);
+
+        ObsidianVisualization(root->rightNode, "TreeVisualization");
+    }
+}
+
 tree_2_3* Tree_2_3_Insert(tree_2_3 *root, Data data){
     if (!root)
         return initNode(data);
