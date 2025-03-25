@@ -21,9 +21,49 @@ typedef struct Node {
     struct Node* parent;
 } Node;
 
+Node* InitNode(Data data,  enum Color color, Node* parent){
+    Node* root = calloc(1, sizeof(Node));
+    root->color = RED;
+    root->data = data;
+    root->color = color;
+    root->parent = parent;
+    return root;
+}
+
+Node* InitNode(Data data){      // red node
+    Node* root = calloc(1, sizeof(Node));
+    root->color = RED;
+    root->data = data;
+    return root;
+}
+
+Node* InitNode(Data data, Node* parent){      // red node with parent
+    Node* root = calloc(1, sizeof(Node));
+    root->color = RED;
+    root->data = data;
+    root->parent = parent;
+    return root;
+}
+
+Node* RedBlackTreeInsert (Node* root, Data data){
+    if (root == NULL)
+        return InitNode(data, BLACK);
+
+
+    return root;
+}
 
 int main(){
 
+    Node* root = NULL;
+    for (int i = 0; i < 50; i++){
+        Data data;
+        data.ID = i;
+        sprintf(data.name, "%d", i);
+        sprintf(data.surname, "%d", i);
+
+        root = RedBlackTreeInsert(root, data);
+    }
 
     return 0;
 }
