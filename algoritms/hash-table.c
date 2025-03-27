@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define BASESIZE 10         // [1-n]
 #define LOADFACTOR 0.75     // [0-1]
 
 typedef struct Data {
@@ -100,14 +99,13 @@ HashTable* HashTableInsert (HashTable* hashTable, Data* data){
 
     if ((float)hashTable->elementCount/(float)hashTable->size >= LOADFACTOR){
         HashTable* newTable = calloc (1, sizeof(HashTable));
-        newTable->size = hashTable->size+BASESIZE;
+        newTable->size = hashTable->size*2;
         newTable->arr = calloc(newTable->size, sizeof(Data*));
-        // PrintHasTable(newTable);
+
         for (int i = 0; i < hashTable->size; i++) //copy all previous data
             if (hashTable->arr[i] != NULL)
                 newTable = HashTableInsert(newTable, hashTable->arr[i]);
-        // PrintHasTable(hashTable);
-        // PrintHasTable(newTable);
+
         free(hashTable);
         hashTable = newTable;
     }
