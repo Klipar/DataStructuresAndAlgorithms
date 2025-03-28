@@ -151,6 +151,23 @@ Node* RedBlackTreeInsert (Node* root, Data data){
     return root;
 }
 
+Data* RedBlackTreeSearch (Node* root, unsigned int ID){
+    while (root != NULL){
+        if (root->data.ID == ID)
+            return &(root->data);
+
+        if (root->data.ID > ID){
+            root = root->leftNode;
+            continue;
+        }
+        if (root->data.ID < ID){
+            root = root->rightNode;
+            continue;
+        }
+    }
+    return NULL;
+}
+
 int main(){
     Node* root = NULL;
 
@@ -163,5 +180,6 @@ int main(){
         root = RedBlackTreeInsert(root, data);
     }
 
+    // Data* data = RedBlackTreeSearch(root, 10);
     return 0;
 }
