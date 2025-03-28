@@ -168,6 +168,13 @@ Data* RedBlackTreeSearch (Node* root, unsigned int ID){
     return NULL;
 }
 
+Data GetMaxData (Node* root, unsigned int ID){
+    while (root->rightNode != NULL){
+        root->rightNode;
+    }
+    return root->data;
+}
+
 int main(){
     Node* root = NULL;
 
