@@ -206,11 +206,13 @@ void deleteCase5(Node* brother);
 void deleteCase6(Node* brother);
 
 
-void deleteCase6(Node* brother){
-    brother->color = brother->parent->color;
-    brother->parent->color = BLACK;
+void deleteCase6(Node* current){
+    Node *brother = GetBrother(current);
 
-    if (brother == brother->parent->rightNode) {
+    brother->color = current->parent->color;
+    current->parent->color = BLACK;
+
+    if (current == current->parent->leftNode) {
         if (brother->rightNode != NULL)
             brother->rightNode->color = BLACK;
 		RotateLeft(brother);
@@ -222,15 +224,17 @@ void deleteCase6(Node* brother){
 
 }
 
-void deleteCase5(Node* brother){
+void deleteCase5(Node* current){
+    Node *brother = GetBrother(current);
+
     if (brother->color == BLACK){
-        if (brother == brother->parent->rightNode &&
+        if (current == current->parent->leftNode &&
             brother->rightNode == NULL &&
             brother->leftNode != NULL){
                 brother->color = RED;
                 brother->leftNode->color = BLACK;
                 RotateRight(brother->leftNode);
-        } else if ( brother == brother->parent->leftNode &&
+        } else if ( current == current->parent->rightNode &&
                     brother->leftNode == NULL &&
                     brother->rightNode != NULL){
                 brother->color = RED;
@@ -238,47 +242,53 @@ void deleteCase5(Node* brother){
                 RotateLeft(brother->rightNode);
             }
     }
-    deleteCase6(brother);
+    deleteCase6(current);
 }
 
-void deleteCase4(Node* brother){
-    if (brother->parent->color == RED &&
+void deleteCase4(Node* current){
+    Node *brother = GetBrother(current);
+
+    if (current->parent->color == RED &&
         brother->color == BLACK &&
         brother->leftNode == NULL &&
         brother->rightNode == NULL){
             brother->color = RED;
-            brother->parent->color = BLACK;
+            current->parent->color = BLACK;
     } else
-        deleteCase5(brother);
+        deleteCase5(current);
 }
 
-void deleteCase3(Node* brother){
-    if (brother->parent->color == BLACK &&
+void deleteCase3(Node* current){
+    Node *brother = GetBrother(current);
+
+    if (current->parent->color == BLACK &&
         brother->color == BLACK &&
         brother->leftNode == NULL &&
         brother->rightNode == NULL){
             brother->color = RED;
-            deleteCase1(brother->parent);
+            deleteCase1(current->parent);
     } else
-        deleteCase4(brother);
+        deleteCase4(current);
 }
 
-void deleteCase2(Node* brother){
+void deleteCase2(Node* current){
+    Node *brother = GetBrother(current);
+
     if (brother->color == RED){
-        brother->parent->color = RED;
+        current->parent->color = RED;
         brother->color == BLACK;
-        if (brother == brother->parent->rightNode)
-            RotateLeft(brother);
+        if (current == current->parent->leftNode)
+            RotateLeft(current);
         else
-            RotateRight(brother);
+            RotateRight(current);
     }
 
-    deleteCase3(brother);
+    deleteCase3(current);
 }
 
-void deleteCase1(Node* brother){
-    if (brother != NULL)
-        deleteCase2(brother);
+void deleteCase1(Node* current){
+    if (current->parent != NULL)
+        deleteCase2(current);
 }
 
 Node* RedBlackTreeDelete (Node* root, unsigned int ID){
@@ -307,10 +317,9 @@ Node* RedBlackTreeDelete (Node* root, unsigned int ID){
                         return root;
                     }
                 } else {
-                    Node* brother = GetBrother(current);
+                    deleteCase1(current);
                     CutConnectWithPatent(current);
                     free(current);
-                    deleteCase1(brother);
                     break;
                 }
             }
