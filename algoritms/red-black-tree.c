@@ -36,7 +36,45 @@ Node* InitNode(Data data,  enum Color color, Node* parent){
     return root;
 }
 
-void RotateLeft(Node* root){
+void RotateLeft(Node *root){
+    Node *current = root->rightNode;
+
+    current->parent = root->parent;
+    if (root->parent != NULL) {
+        if (root->parent->leftNode==root)
+            root->parent->leftNode = current;
+        else
+            root->parent->rightNode = current;
+    }
+
+    root->rightNode = current->leftNode;
+    if (current->leftNode != NULL)
+        current->leftNode->parent = root;
+
+    root->parent = current;
+    current->leftNode = root;
+}
+
+void RotateRight(Node *root){
+    Node *current = root->leftNode;
+
+    current->parent = root->parent;
+    if (root->parent != NULL) {
+        if (root->parent->leftNode==root)
+            root->parent->leftNode = current;
+        else
+            root->parent->rightNode = current;
+    }
+
+    root->leftNode = current->rightNode;
+    if (current->rightNode != NULL)
+        current->rightNode->parent = root;
+
+    root->parent = current;
+    current->rightNode = root;
+}
+
+void RotateLeftWithRepainting(Node* root){
     if (root->parent != NULL){
         Node* tmp = root->parent;
         root->parent = root->parent->parent;
@@ -59,7 +97,7 @@ void RotateLeft(Node* root){
     }
 }
 
-void RotateRight(Node* root){
+void RotateRightWithRepainting(Node* root){
     if (root->parent != NULL){
         Node* tmp = root->parent;
         root->parent = root->parent->parent;
@@ -83,7 +121,6 @@ void RotateRight(Node* root){
 }
 
 Node* RedBlackTreeBalance(Node* root) {
-    // Node* current = root;
     while (root->parent != NULL){
         if (root->color == RED && root->parent->color == RED){
             if (root->parent->parent != NULL){
@@ -97,12 +134,12 @@ Node* RedBlackTreeBalance(Node* root) {
                         }
                     }
                     if (root->parent->rightNode == root){
-                        RotateLeft(root);
-                        RotateRight(root);
+                        RotateLeftWithRepainting(root);
+                        RotateRightWithRepainting(root);
                         continue;
                     }
                     if (root->parent->leftNode == root){
-                        RotateRight(root->parent);
+                        RotateRightWithRepainting(root->parent);
                         continue;
                     }
                 }
@@ -116,12 +153,12 @@ Node* RedBlackTreeBalance(Node* root) {
                         }
                     }
                     if (root->parent->leftNode == root){
-                        RotateRight(root);
-                        RotateLeft(root);
+                        RotateRightWithRepainting(root);
+                        RotateLeftWithRepainting(root);
                         continue;
                     }
                     if (root->parent->rightNode == root){
-                        RotateLeft(root->parent);
+                        RotateLeftWithRepainting(root->parent);
                         continue;
                     }
                 }
@@ -209,44 +246,6 @@ void CutConnectWithParent (Node* current){
         current->parent->rightNode = NULL;
 }
 
-void rotate_left(Node *n){
-    Node *pivot = n->rightNode;
-
-    pivot->parent = n->parent;
-    if (n->parent != NULL) {
-        if (n->parent->leftNode==n)
-            n->parent->leftNode = pivot;
-        else
-            n->parent->rightNode = pivot;
-    }
-
-    n->rightNode = pivot->leftNode;
-    if (pivot->leftNode != NULL)
-        pivot->leftNode->parent = n;
-
-    n->parent = pivot;
-    pivot->leftNode = n;
-}
-
-void rotate_right(Node *n){
-    Node *pivot = n->leftNode;
-
-    pivot->parent = n->parent;
-    if (n->parent != NULL) {
-        if (n->parent->leftNode==n)
-            n->parent->leftNode = pivot;
-        else
-            n->parent->rightNode = pivot;
-    }
-
-    n->leftNode = pivot->rightNode;
-    if (pivot->rightNode != NULL)
-        pivot->rightNode->parent = n;
-
-    n->parent = pivot;
-    pivot->rightNode = n;
-}
-
 void deleteCase6(Node* current){
     Node *brother = GetBrother(current);
 
@@ -256,11 +255,11 @@ void deleteCase6(Node* current){
     if (current == current->parent->leftNode) {
         if (brother->rightNode != NULL)
             brother->rightNode->color = BLACK;
-		rotate_left(current->parent);
+		RotateLeft(current->parent);
 	} else {
         if (brother->leftNode != NULL)
 		    brother->leftNode->color = BLACK;
-		rotate_right(current->parent);
+		RotateRight(current->parent);
 	}
 
 }
@@ -274,13 +273,13 @@ void deleteCase5(Node* current){
             ((brother->leftNode != NULL) && brother->leftNode->color == RED)){
                 brother->color = RED;
                 brother->leftNode->color = BLACK;
-                rotate_right(brother);
+                RotateRight(brother);
         } else if ( current == current->parent->rightNode &&
                     ((brother->leftNode == NULL) || brother->leftNode != NULL && brother->leftNode->color == BLACK) &&
                     ((brother->rightNode != NULL) || brother->rightNode->color == RED)){
                 brother->color = RED;
                 brother->rightNode->color = BLACK;
-                rotate_left(brother);
+                RotateLeft(brother);
             }
     }
     deleteCase6(current);
@@ -317,9 +316,9 @@ void deleteCase2(Node* current){
         current->parent->color = RED;
         brother->color == BLACK;
         if (current == current->parent->leftNode)
-            rotate_left(current->parent);
+            RotateLeft(current->parent);
         else
-            rotate_right(current->parent);
+            RotateRight(current->parent);
     }
 
     deleteCase3(current);
