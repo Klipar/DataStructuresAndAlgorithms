@@ -20,6 +20,13 @@ typedef struct Node {
     struct Node* rightNode;
 } Node;
 
+Node* deleteCase1(Node* brother);
+void  deleteCase2(Node* brother);
+void  deleteCase3(Node* brother);
+void  deleteCase4(Node* brother);
+void  deleteCase5(Node* brother);
+void  deleteCase6(Node* brother);
+
 Node* InitNode(Data data,  enum Color color, Node* parent){
     Node* root = calloc(1, sizeof(Node));
     root->color = RED;
@@ -240,13 +247,6 @@ void rotate_right(Node *n){
     pivot->rightNode = n;
 }
 
-void deleteCase1(Node* brother);
-void deleteCase2(Node* brother);
-void deleteCase3(Node* brother);
-void deleteCase4(Node* brother);
-void deleteCase5(Node* brother);
-void deleteCase6(Node* brother);
-
 void deleteCase6(Node* current){
     Node *brother = GetBrother(current);
 
@@ -325,9 +325,12 @@ void deleteCase2(Node* current){
     deleteCase3(current);
 }
 
-void deleteCase1(Node* current){
-    if (current->parent != NULL)
+Node* deleteCase1(Node* current){
+    if (current->parent != NULL){
         deleteCase2(current);
+        return current;
+    } else
+        return NULL;
 }
 
 Node* RedBlackTreeDelete (Node* root, unsigned int ID){
@@ -356,10 +359,11 @@ Node* RedBlackTreeDelete (Node* root, unsigned int ID){
                         return root;
                     }
                 } else {
-                    deleteCase1(current);
-                    root = current;
-                    while (root->parent != NULL)
-                        root = root->parent;
+                    root = deleteCase1(current);
+                    if (root)
+                        while (root->parent != NULL)
+                            root = root->parent;
+
                     CutConnectWithParent(current);
                     free(current);
                     break;
@@ -393,10 +397,9 @@ int main(){
         root = RedBlackTreeInsert(root, data);
     }
 
-    for (int i = 0; i <= 10; i++){
+    for (int i = 10; i >= 0; i--){
         root = RedBlackTreeDelete(root, i);
     }
 
-    // Data* data = RedBlackTreeSearch(root, 10);
     return 0;
 }
