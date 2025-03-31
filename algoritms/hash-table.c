@@ -3,6 +3,8 @@
 #include <stdbool.h>
 
 #define LOADFACTOR 0.75     // [0-1]
+#define DEFAULT_SIZE 10
+
 
 typedef struct Data {
     unsigned int ID;
@@ -12,67 +14,17 @@ typedef struct Data {
 } Data;
 
 typedef struct HashTable {
-    Data** arr;
+    Data* arr;
     unsigned size;
     unsigned elementCount;
+    float loadFactor;
 } HashTable;
-
-bool AddElementToLinkedList(Data* root, Data* node){
-    if (node->ID != root->ID){
-        if (root->next != NULL){
-            return AddElementToLinkedList(root->next, node);
-        } else {
-            root->next = node;
-            return true;
-        }
-    }
-    return false;
-}
-
-void FreeLinkedList(Data* root){
-    if (root == NULL)
-        return;
-    if (root->next != NULL)
-        FreeLinkedList(root->next);
-
-    free(root);
-}
-
-void FreeHashTable(HashTable* hashTable){
-    if (hashTable == NULL){
-        return;
-    } else{
-        for (int i = 0; i < hashTable->size; i++)
-            FreeLinkedList(hashTable->arr[i]);
-        free (hashTable);
-    }
-}
-
-Data* SearchLinkedList (Data* root, int ID){
-    if (root == NULL)
-        return NULL;
-
-    if (root->ID != ID)
-        return SearchLinkedList(root->next, ID);
-    else
-        return root;
-}
 
 Data* SearchHashTable (HashTable* hashTable, int ID){
     if (hashTable == NULL)
         return NULL;
 
     return SearchLinkedList(hashTable->arr[ID % hashTable->size], ID);
-}
-
-void PrintLinkedList(Data* data){
-    if (data == NULL){
-        printf("\n");
-        return;
-    }else {
-        printf("%u -> ", data->ID);
-        PrintLinkedList(data->next);
-    }
 }
 
 void PrintHasTable (HashTable* hashTable){
@@ -153,6 +105,19 @@ bool HashTableDelate(HashTable* hashTable, int ID){
     }
 }
 
+HashTable* HashTableInit(unsigned int size, float loadFactor){
+    HashTable* table = malloc (sizeof(HashTable));
+
+    if (size <= 0 || loadFactor > 1 || loadFactor <= 0)
+        return NULL;
+
+    table->size = size;
+    table->arr = calloc(table->size, sizeof(Data));
+    table->elementCount = 0;
+    table->loadFactor = loadFactor;
+    return table;
+}
+
 int main(){
     HashTable* hashTable;
 
@@ -164,22 +129,5 @@ int main(){
 
         hashTable = HashTableInsert(hashTable, data);
     }
-
-    for (int i = 0; i <= 50; i++){
-        if (SearchHashTable(hashTable, i) != NULL)
-            printf("%d\n", SearchHashTable(hashTable, i)->ID);
-        else{
-            printf("NotFound = %d", i);
-            SearchHashTable(hashTable, i);
-        }
-    }
-    PrintHasTable(hashTable);
-    for (int i = 0; i <= 50; i++){
-        if (!HashTableDelate(hashTable, i)){
-            printf("ERROR");
-        }
-    }
-    PrintHasTable(hashTable);
-
     return 0;
 }
