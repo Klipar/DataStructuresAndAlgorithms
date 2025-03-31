@@ -3,8 +3,8 @@
 #include <stdbool.h>
 
 #define LOADFACTOR 0.75     // [0-1]
-#define DEFAULT_SIZE 10
-
+#define DEFAULT_SIZE 10     // [0-+∞]
+#define PRIME_NUMBER 19     // Prime number for the second hash function
 
 typedef struct Data {
     unsigned int ID;
@@ -19,11 +19,17 @@ typedef struct HashTable {
     float loadFactor;
 } HashTable;
 
-Data* SearchHashTable (HashTable* hashTable, int ID){
-    if (hashTable == NULL)
+HashTable* HashTableInit(unsigned int size, float loadFactor){
+    HashTable* table = malloc (sizeof(HashTable));
+
+    if (size <= 0 || loadFactor > 1 || loadFactor <= 0)
         return NULL;
 
-    return SearchLinkedList(hashTable->arr[ID % hashTable->size], ID);
+    table->size = size;
+    table->arr = calloc(table->size, sizeof(Data));
+    table->elementCount = 0;
+    table->loadFactor = loadFactor;
+    return table;
 }
 
 void HasTablePrint (HashTable* hashTable){
@@ -40,41 +46,62 @@ void HasTablePrint (HashTable* hashTable){
             count++;
             size /= 10;
         } while (size > 0);
+        printf("arr id\tID\tName\tSurname\n");
         for (int i = 0; i < hashTable->size; i++){
             printf("[%0*d] ID: %u\t %s \t %s\n", count, i, (hashTable->arr+i)->ID, (hashTable->arr+i)->name, (hashTable->arr+i)->surname);
         }
     }
 }
 
-HashTable* HashTableInsert (HashTable* hashTable, Data* data){
-    if (hashTable == NULL){
-        hashTable = calloc (1, sizeof(HashTable));
-        hashTable->size = BASESIZE;
-        hashTable->arr = calloc(hashTable->size, sizeof(Data*));
+
+/*   index = (h1(key) + i · h2(key)) mod arrSize,
+ *   h1(key) = key mod arrSize
+ *   h2(key) = primeNumber - (key mod primeNumber)
+ */
+unsigned int HashTableGetArrId(HashTable* hashTable, unsigned int ID){
+    if (hashTable == NULL)
+        return 0;
+
+    unsigned int hash1 = ID % hashTable->size;
+    unsigned int arrID;
+    for (unsigned int i = 0; true ; i++){
+        arrID = (hash1 + i*(PRIME_NUMBER - (ID % PRIME_NUMBER))) % hashTable->size;
+        if ((hashTable->arr+arrID)->ID == ID ||
+            ((hashTable->arr+arrID)->ID == 0 && (hashTable->arr+arrID)->name[0] == '\0' && (hashTable->arr+arrID)->surname[0] == '\0')){
+                return arrID;
+        }
     }
+}
+
+void HashTableFree (HashTable* hashTable){
+    if (hashTable == NULL)
+        return;
+
+    if (hashTable->size > 0)
+        free(hashTable->arr);
+    free(hashTable);
+}
+
+HashTable* HashTableInsert (HashTable* hashTable, Data data){
+    if (hashTable == NULL)
+        hashTable = HashTableInit(DEFAULT_SIZE, LOADFACTOR);
 
     if ((float)hashTable->elementCount/(float)hashTable->size >= LOADFACTOR){
-        HashTable* newTable = calloc (1, sizeof(HashTable));
-        newTable->size = hashTable->size*2;
-        newTable->arr = calloc(newTable->size, sizeof(Data*));
+        HashTable* newTable = HashTableInit(hashTable->size*2, LOADFACTOR);
 
         for (int i = 0; i < hashTable->size; i++) //copy all previous data
-            if (hashTable->arr[i] != NULL)
+            if  (!((hashTable->arr+i)->ID == 0 && (hashTable->arr+i)->name[0] == '\0' && (hashTable->arr+i)->surname[0] == '\0'))
                 newTable = HashTableInsert(newTable, hashTable->arr[i]);
 
-        free(hashTable);
+        HashTableFree(hashTable);
         hashTable = newTable;
     }
-    unsigned int arrId = data->ID % hashTable->size;
-    if (hashTable->arr[arrId] == NULL){
-        hashTable->arr[arrId] = data;
+
+    unsigned int arrID = HashTableGetArrId(hashTable, data.ID);
+    if ((hashTable->arr+arrID)->ID == 0 && (hashTable->arr+arrID)->name[0] == '\0' && (hashTable->arr+arrID)->surname[0] == '\0')
         hashTable->elementCount++;
-    } else
-        if(AddElementToLinkedList(hashTable->arr[arrId], data)){
-            hashTable->elementCount++;
-        } else{
-            free (data);
-        }
+    hashTable->arr[arrID] = data;
+
     return hashTable;
 }
 
