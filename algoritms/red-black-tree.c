@@ -36,41 +36,41 @@ Node* InitNode(Data data,  enum Color color, Node* parent){
 }
 
 void RotateLeft(Node *root){
-    Node *current = root->rightNode;
+    Node *tmp = root->rightNode;
 
-    current->parent = root->parent;
+    tmp->parent = root->parent;
     if (root->parent != NULL) {
         if (root->parent->leftNode==root)
-            root->parent->leftNode = current;
+            root->parent->leftNode = tmp;
         else
-            root->parent->rightNode = current;
+            root->parent->rightNode = tmp;
     }
 
-    root->rightNode = current->leftNode;
-    if (current->leftNode != NULL)
-        current->leftNode->parent = root;
+    root->rightNode = tmp->leftNode;
+    if (tmp->leftNode != NULL)
+        tmp->leftNode->parent = root;
 
-    root->parent = current;
-    current->leftNode = root;
+    root->parent = tmp;
+    tmp->leftNode = root;
 }
 
 void RotateRight(Node *root){
-    Node *current = root->leftNode;
+    Node *tmp = root->leftNode;
 
-    current->parent = root->parent;
+    tmp->parent = root->parent;
     if (root->parent != NULL) {
         if (root->parent->leftNode==root)
-            root->parent->leftNode = current;
+            root->parent->leftNode = tmp;
         else
-            root->parent->rightNode = current;
+            root->parent->rightNode = tmp;
     }
 
-    root->leftNode = current->rightNode;
-    if (current->rightNode != NULL)
-        current->rightNode->parent = root;
+    root->leftNode = tmp->rightNode;
+    if (tmp->rightNode != NULL)
+        tmp->rightNode->parent = root;
 
-    root->parent = current;
-    current->rightNode = root;
+    root->parent = tmp;
+    tmp->rightNode = root;
 }
 
 void RotateLeftWithRepainting(Node* root){
