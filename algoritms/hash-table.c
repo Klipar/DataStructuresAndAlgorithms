@@ -8,7 +8,6 @@
 
 typedef struct Data {
     unsigned int ID;
-    struct Data* next;
     char name [20];
     char surname [20];
 } Data;
@@ -27,17 +26,22 @@ Data* SearchHashTable (HashTable* hashTable, int ID){
     return SearchLinkedList(hashTable->arr[ID % hashTable->size], ID);
 }
 
-void PrintHasTable (HashTable* hashTable){
+void HasTablePrint (HashTable* hashTable){
     if (hashTable == NULL){
         printf("======================================\n");
         printf("Map is NULL.");
     } else{
         printf("======================================\n");
         printf("Size = %d\n", hashTable->size);
+        printf("loadFactor = %f\n", hashTable->loadFactor);
         printf("Element count = %d\n", hashTable->elementCount);
+        unsigned int size = hashTable->size, count = 0;
+        do {
+            count++;
+            size /= 10;
+        } while (size > 0);
         for (int i = 0; i < hashTable->size; i++){
-            printf("[%d]| ", i);
-            PrintLinkedList(hashTable->arr[i]);
+            printf("[%0*d] ID: %u\t %s \t %s\n", count, i, (hashTable->arr+i)->ID, (hashTable->arr+i)->name, (hashTable->arr+i)->surname);
         }
     }
 }
