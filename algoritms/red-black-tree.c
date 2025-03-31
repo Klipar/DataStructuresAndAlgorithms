@@ -41,6 +41,8 @@ void RotateLeft(Node* root){
             }
         }
         tmp->rightNode = root->leftNode;
+        if (root->leftNode != NULL)
+            root->leftNode->parent = tmp;
         root->leftNode = tmp;
         tmp->parent = root;
         root->color = BLACK;
@@ -62,6 +64,8 @@ void RotateRight(Node* root){
             }
         }
         tmp->leftNode = root->rightNode;
+        if (root->leftNode != NULL)
+            root->rightNode->parent = tmp;
         root->rightNode = tmp;
         tmp->parent = root;
         root->color = BLACK;
@@ -318,6 +322,9 @@ Node* RedBlackTreeDelete (Node* root, unsigned int ID){
                     }
                 } else {
                     deleteCase1(current);
+                    root = current;
+                    while (root->parent != NULL)
+                        root = root->parent;
                     CutConnectWithPatent(current);
                     free(current);
                     break;
