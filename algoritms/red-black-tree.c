@@ -29,7 +29,6 @@ void  deleteCase6(Node* brother);
 
 Node* InitNode(Data data,  enum Color color, Node* parent){
     Node* root = calloc(1, sizeof(Node));
-    root->color = RED;
     root->data = data;
     root->color = color;
     root->parent = parent;
@@ -109,7 +108,7 @@ void RotateRightWithRepainting(Node* root){
             }
         }
         tmp->leftNode = root->rightNode;
-        if (root->leftNode != NULL)
+        if (root->rightNode != NULL)
             root->rightNode->parent = tmp;
         root->rightNode = tmp;
         tmp->parent = root;
@@ -217,7 +216,7 @@ Data* RedBlackTreeSearch (Node* root, unsigned int ID){
 
 Data GetMaxData (Node* root){
     while (root->rightNode != NULL){
-        root->rightNode;
+        root = root->rightNode;
     }
     return root->data;
 }
@@ -276,7 +275,7 @@ void deleteCase5(Node* current){
                 RotateRight(brother);
         } else if ( current == current->parent->rightNode &&
                     ((brother->leftNode == NULL) || brother->leftNode != NULL && brother->leftNode->color == BLACK) &&
-                    ((brother->rightNode != NULL) || brother->rightNode->color == RED)){
+                    ((brother->rightNode != NULL) && brother->rightNode->color == RED)){
                 brother->color = RED;
                 brother->rightNode->color = BLACK;
                 RotateLeft(brother);
