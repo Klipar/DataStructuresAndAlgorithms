@@ -6,37 +6,40 @@ enum Color {
     BLACK
 };
 
+#if !defined(DATA)
+#define DATA
 typedef struct Data {
     unsigned int ID;
     char name [20];
     char surname [20];
 } Data;
+#endif // DATA
 
-typedef struct Node {
+typedef struct RedBlackTree {
     Data data;
     enum Color color;
-    struct Node* parent;
-    struct Node* leftNode;
-    struct Node* rightNode;
-} Node;
+    struct RedBlackTree* parent;
+    struct RedBlackTree* leftNode;
+    struct RedBlackTree* rightNode;
+} RedBlackTree;
 
-Node* deleteCase1(Node* brother);
-void  deleteCase2(Node* brother);
-void  deleteCase3(Node* brother);
-void  deleteCase4(Node* brother);
-void  deleteCase5(Node* brother);
-void  deleteCase6(Node* brother);
+RedBlackTree* deleteCase1(RedBlackTree* brother);
+void  deleteCase2(RedBlackTree* brother);
+void  deleteCase3(RedBlackTree* brother);
+void  deleteCase4(RedBlackTree* brother);
+void  deleteCase5(RedBlackTree* brother);
+void  deleteCase6(RedBlackTree* brother);
 
-Node* InitNode(Data data,  enum Color color, Node* parent){
-    Node* root = calloc(1, sizeof(Node));
+RedBlackTree* InitNode(Data data,  enum Color color, RedBlackTree* parent){
+    RedBlackTree* root = calloc(1, sizeof(RedBlackTree));
     root->data = data;
     root->color = color;
     root->parent = parent;
     return root;
 }
 
-void RotateLeft(Node *root){
-    Node *tmp = root->rightNode;
+void RotateLeft(RedBlackTree *root){
+    RedBlackTree *tmp = root->rightNode;
 
     tmp->parent = root->parent;
     if (root->parent != NULL) {
@@ -54,8 +57,8 @@ void RotateLeft(Node *root){
     tmp->leftNode = root;
 }
 
-void RotateRight(Node *root){
-    Node *tmp = root->leftNode;
+void RotateRight(RedBlackTree *root){
+    RedBlackTree *tmp = root->leftNode;
 
     tmp->parent = root->parent;
     if (root->parent != NULL) {
@@ -73,9 +76,9 @@ void RotateRight(Node *root){
     tmp->rightNode = root;
 }
 
-void RotateLeftWithRepainting(Node* root){
+void RotateLeftWithRepainting(RedBlackTree* root){
     if (root->parent != NULL){
-        Node* tmp = root->parent;
+        RedBlackTree* tmp = root->parent;
         root->parent = root->parent->parent;
         if (root->parent != NULL){
             if (root->parent->leftNode == tmp){
@@ -96,9 +99,9 @@ void RotateLeftWithRepainting(Node* root){
     }
 }
 
-void RotateRightWithRepainting(Node* root){
+void RotateRightWithRepainting(RedBlackTree* root){
     if (root->parent != NULL){
-        Node* tmp = root->parent;
+        RedBlackTree* tmp = root->parent;
         root->parent = root->parent->parent;
         if (root->parent != NULL){
             if (root->parent->leftNode == tmp){
@@ -119,7 +122,7 @@ void RotateRightWithRepainting(Node* root){
     }
 }
 
-Node* RedBlackTreeBalance(Node* root) {
+RedBlackTree* RedBlackTreeBalance(RedBlackTree* root) {
     while (root->parent != NULL){
         if (root->color == RED && root->parent->color == RED){
             if (root->parent->parent != NULL){
@@ -170,11 +173,11 @@ Node* RedBlackTreeBalance(Node* root) {
     return root;
 }
 
-Node* RedBlackTreeInsert (Node* root, Data data){
+RedBlackTree* RedBlackTreeInsert (RedBlackTree* root, Data data){
     if (root == NULL)
         return InitNode(data, BLACK, NULL);
 
-    Node* current = root;
+    RedBlackTree* current = root;
     while (current != NULL){
         if (current->data.ID > data.ID){
             if (current->leftNode != NULL){
@@ -197,7 +200,7 @@ Node* RedBlackTreeInsert (Node* root, Data data){
     return root;
 }
 
-Data* RedBlackTreeSearch (Node* root, unsigned int ID){
+Data* RedBlackTreeSearch (RedBlackTree* root, unsigned int ID){
     while (root != NULL){
         if (root->data.ID == ID)
             return &(root->data);
@@ -214,14 +217,14 @@ Data* RedBlackTreeSearch (Node* root, unsigned int ID){
     return NULL;
 }
 
-Data GetMaxData (Node* root){
+Data GetMaxData (RedBlackTree* root){
     while (root->rightNode != NULL){
         root = root->rightNode;
     }
     return root->data;
 }
 
-Node* GetBrother (Node* node){
+RedBlackTree* GetBrother (RedBlackTree* node){
     if (node == NULL)
         return NULL;
     if (node->parent == NULL)
@@ -236,7 +239,7 @@ Node* GetBrother (Node* node){
     return NULL;
 }
 
-void CutConnectWithParent (Node* current){
+void CutConnectWithParent (RedBlackTree* current){
     if (current->parent == NULL)
         return;
     if (current->parent->leftNode == current) // cuting link in parent
@@ -245,8 +248,8 @@ void CutConnectWithParent (Node* current){
         current->parent->rightNode = NULL;
 }
 
-void deleteCase6(Node* current){
-    Node *brother = GetBrother(current);
+void deleteCase6(RedBlackTree* current){
+    RedBlackTree *brother = GetBrother(current);
 
     brother->color = current->parent->color;
     current->parent->color = BLACK;
@@ -263,8 +266,8 @@ void deleteCase6(Node* current){
 
 }
 
-void deleteCase5(Node* current){
-    Node *brother = GetBrother(current);
+void deleteCase5(RedBlackTree* current){
+    RedBlackTree *brother = GetBrother(current);
 
     if (brother->color == BLACK){
         if (current == current->parent->leftNode &&
@@ -284,10 +287,10 @@ void deleteCase5(Node* current){
     deleteCase6(current);
 }
 
-void deleteCase4(Node* current){
-    Node *brother = GetBrother(current);
+void deleteCase4(RedBlackTree* current){
+    RedBlackTree *brother = GetBrother(current);
 
-    if (current->parent->color == RED && brother->color == BLACK &&
+    if (current->parent->color == RED && ((brother == NULL) || brother->color == BLACK) &&
         (((brother->leftNode == NULL)) || (brother->leftNode != NULL && brother->leftNode->color == BLACK)) &&
         (((brother->rightNode == NULL)) || (brother->rightNode != NULL || brother->rightNode->color == BLACK))){
         brother->color = RED;
@@ -296,8 +299,8 @@ void deleteCase4(Node* current){
         deleteCase5(current);
 }
 
-void deleteCase3(Node* current){
-    Node *brother = GetBrother(current);
+void deleteCase3(RedBlackTree* current){
+    RedBlackTree *brother = GetBrother(current);
 
     if ((current->parent->color == BLACK && brother->color == BLACK) &&
     (((brother->leftNode == NULL)) || (brother->leftNode != NULL && brother->leftNode->color == BLACK)) &&
@@ -308,8 +311,8 @@ void deleteCase3(Node* current){
         deleteCase4(current);
 }
 
-void deleteCase2(Node* current){
-    Node *brother = GetBrother(current);
+void deleteCase2(RedBlackTree* current){
+    RedBlackTree *brother = GetBrother(current);
 
     if (brother->color == RED){
         current->parent->color = RED;
@@ -323,7 +326,7 @@ void deleteCase2(Node* current){
     deleteCase3(current);
 }
 
-Node* deleteCase1(Node* current){
+RedBlackTree* deleteCase1(RedBlackTree* current){
     if (current->parent != NULL){
         deleteCase2(current);
         return current;
@@ -331,8 +334,8 @@ Node* deleteCase1(Node* current){
         return NULL;
 }
 
-Node* RedBlackTreeDelete (Node* root, unsigned int ID){
-    Node* current = root;
+RedBlackTree* RedBlackTreeDelete (RedBlackTree* root, unsigned int ID){
+    RedBlackTree* current = root;
 
     while (current != NULL){ // the current implementation does not signal an error when deleting a non-existent element!
         if (current->data.ID == ID){    // node swap < - >
@@ -348,14 +351,12 @@ Node* RedBlackTreeDelete (Node* root, unsigned int ID){
                 free(current);
                 return root;
             } else {
-                Node* son = (current->leftNode == NULL) ? current->rightNode : current->leftNode; // get son or null
-                if (son != NULL){
-                    if (son->color == RED){
-                        current->data = son->data;
-                        CutConnectWithParent(son);
-                        free(son);
-                        return root;
-                    }
+                RedBlackTree* son = (current->leftNode == NULL) ? current->rightNode : current->leftNode; // get son or null
+                if (son != NULL && son->color == RED){
+                    current->data = son->data;
+                    CutConnectWithParent(son);
+                    free(son);
+                    return root;
                 } else {
                     root = deleteCase1(current);
                     if (root)
@@ -383,21 +384,33 @@ Node* RedBlackTreeDelete (Node* root, unsigned int ID){
     return root;
 }
 
-int main(){
-    Node* root = NULL;
+void RedBlackTreeFree(RedBlackTree* root){
+    if (root->leftNode != NULL)
+        RedBlackTreeFree (root->leftNode);
 
-    for (int i = 0; i <= 10; i++){
-        Data data;
-        data.ID = i;
-        sprintf(data.name, "%d", i);
-        sprintf(data.surname, "%d", i);
+    if (root->rightNode != NULL)
+        RedBlackTreeFree (root->rightNode);
 
-        root = RedBlackTreeInsert(root, data);
-    }
-
-    for (int i = 10; i >= 0; i--){
-        root = RedBlackTreeDelete(root, i);
-    }
-
-    return 0;
+        free(root);
 }
+
+// #if !defined(WORK_MODE)
+// int main(){
+//     RedBlackTree* root = NULL;
+
+//     for (int i = 0; i <= 10; i++){
+//         Data data;
+//         data.ID = i;
+//         sprintf(data.name, "%d", i);
+//         sprintf(data.surname, "%d", i);
+
+//         root = RedBlackTreeInsert(root, data);
+//     }
+
+//     for (int i = 10; i >= 0; i--){
+//         root = RedBlackTreeDelete(root, i);
+//     }
+
+//     return 0;
+// }
+// #endif

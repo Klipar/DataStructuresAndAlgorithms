@@ -18,7 +18,13 @@
         "initializer_list": "c",
         "stacktrace": "c",
         "valarray": "c",
-        "*.tcc": "c"
+        "*.tcc": "c",
+        "ratio": "cpp",
+        "condition_variable": "c",
+        "shared_mutex": "c"
     },
-    "C_Cpp.errorSquiggles": "disabled"
+    "C_Cpp.errorSquiggles": "disabled",
+    "cSpell.words": [
+        "rdtsc"
+    ]
 }

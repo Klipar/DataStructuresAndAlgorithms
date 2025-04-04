@@ -3,28 +3,31 @@
 #include <stdbool.h>
 #include <string.h>
 
+#if !defined(DATA)
+#define DATA
 typedef struct Data {
     unsigned int ID;
     char name [20];
     char surname [20];
 } Data;
+#endif // DATA
 
-typedef struct tree_2_3 {
+typedef struct Tree_2_3 {
     Data leftData;
     Data rightData;
     bool isRightExist;
-    struct tree_2_3 *leftNode;
-    struct tree_2_3 *middleNode;
-    struct tree_2_3 *rightNode;
-} tree_2_3;
+    struct Tree_2_3 *leftNode;
+    struct Tree_2_3 *middleNode;
+    struct Tree_2_3 *rightNode;
+} Tree_2_3;
 
-tree_2_3* initNode(Data data){
-    tree_2_3* node = (tree_2_3*)calloc(1, sizeof(tree_2_3));
+Tree_2_3* initNode(Data data){
+    Tree_2_3* node = (Tree_2_3*)calloc(1, sizeof(Tree_2_3));
     node->leftData = data;
     return node;
 }
 
-void ObsidianVisualization(tree_2_3 *root, const char *dirName){
+void ObsidianVisualization(Tree_2_3 *root, const char *dirName){
     if (root == NULL)
         return;
 
@@ -71,10 +74,10 @@ void ObsidianVisualization(tree_2_3 *root, const char *dirName){
     fclose(file);
 }
 
-tree_2_3* Tree_2_3_Insert(tree_2_3 *root, Data data){
+Tree_2_3* Tree_2_3_Insert(Tree_2_3 *root, Data data){
     if (!root)
         return initNode(data);
-    tree_2_3 *tmp;
+    Tree_2_3 *tmp;
     if (!root->leftNode && !root->middleNode){
         if (!root->isRightExist){
             if (root->leftData.ID > data.ID){
@@ -121,7 +124,7 @@ tree_2_3* Tree_2_3_Insert(tree_2_3 *root, Data data){
                     return root;
                 }
             } else {
-                tree_2_3 *newRoot = initNode(root->leftData);
+                Tree_2_3 *newRoot = initNode(root->leftData);
                 newRoot->leftNode = tmp;
                 newRoot->middleNode = root;
                 root->leftData = root->rightData;
@@ -155,7 +158,7 @@ tree_2_3* Tree_2_3_Insert(tree_2_3 *root, Data data){
             return root;
 
         } else {
-            tree_2_3 *newRoot = initNode(root->rightData);
+            Tree_2_3 *newRoot = initNode(root->rightData);
             newRoot->leftNode = root;
             root->isRightExist = false;
             root->rightNode = NULL;
@@ -167,7 +170,7 @@ tree_2_3* Tree_2_3_Insert(tree_2_3 *root, Data data){
         if (root->middleNode == tmp){
             return root;
         }else {
-            tree_2_3 *newRoot = initNode(tmp->leftData);
+            Tree_2_3 *newRoot = initNode(tmp->leftData);
             newRoot->middleNode = initNode(root->rightData);
             newRoot->middleNode->leftNode = tmp->middleNode;
             newRoot->middleNode->middleNode = root->rightNode;
@@ -183,7 +186,7 @@ tree_2_3* Tree_2_3_Insert(tree_2_3 *root, Data data){
     return root;
 }
 
-void Tree_2_3_Free(tree_2_3 *root){
+void Tree_2_3_Free(Tree_2_3 *root){
     if (!root)
         return;
 
@@ -194,7 +197,7 @@ void Tree_2_3_Free(tree_2_3 *root){
     free(root);
     }
 
-tree_2_3* Tree_2_3_Search (tree_2_3 *root, int ID){
+Tree_2_3* Tree_2_3_Search (Tree_2_3 *root, int ID){
     if (root == NULL) return NULL;
 
     if (root->leftData.ID == ID) return root;
@@ -210,7 +213,7 @@ tree_2_3* Tree_2_3_Search (tree_2_3 *root, int ID){
         return Tree_2_3_Search(root->middleNode, ID);
 }
 
-Data getMaxData (tree_2_3 *root){ //if root is NULL, an error will occur. It is handled before calling the function
+Data getMaxData (Tree_2_3 *root){ //if root is NULL, an error will occur. It is handled before calling the function
     if (root->rightNode)
         return getMaxData(root->rightNode);
     if (root->middleNode)
@@ -220,9 +223,9 @@ Data getMaxData (tree_2_3 *root){ //if root is NULL, an error will occur. It is 
     return root->leftData;
 }
 
-tree_2_3* Tree_2_3_Delete (tree_2_3 *root, int ID){
+Tree_2_3* Tree_2_3_Delete (Tree_2_3 *root, int ID){
     if (root == NULL) return NULL;
-    tree_2_3 *tmp;
+    Tree_2_3 *tmp;
 
     if (!root->leftNode && !root->middleNode){
         if (!root->isRightExist){
@@ -456,20 +459,22 @@ tree_2_3* Tree_2_3_Delete (tree_2_3 *root, int ID){
     }
 }
 
-int main(){
-    tree_2_3 *root = NULL;
-    for (int i = 0; i <= 50; i++){
-        Data data;
-        data.ID = i;
-        sprintf(data.name, "%d", i);
-        sprintf(data.surname, "%d", i);
+// #if !defined(WORK_MODE)
+// int main(){
+//     Tree_2_3 *root = NULL;
+//     for (int i = 0; i <= 50; i++){
+//         Data data;
+//         data.ID = i;
+//         sprintf(data.name, "%d", i);
+//         sprintf(data.surname, "%d", i);
 
-        root = Tree_2_3_Insert(root, data);
-    }
-    ObsidianVisualization(root, "TreeVisualization");
-    for (int i = 50; i >=0; i--)
-        root = Tree_2_3_Delete(root, i);
+//         root = Tree_2_3_Insert(root, data);
+//     }
+//     ObsidianVisualization(root, "TreeVisualization");
+//     for (int i = 50; i >=0; i--)
+//         root = Tree_2_3_Delete(root, i);
 
-    Tree_2_3_Free(root);
-    return 0;
-}
+//     Tree_2_3_Free(root);
+//     return 0;
+// }
+// #endif
