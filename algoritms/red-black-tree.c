@@ -271,7 +271,7 @@ void deleteCase5(RedBlackTree* current){
 
     if (brother->color == BLACK){
         if (current == current->parent->leftNode &&
-            (((brother->rightNode == NULL)) || (brother->rightNode != NULL && brother->rightNode->color == BLACK)) &&
+            (((brother->rightNode == NULL)) || (brother->rightNode == NULL || brother->rightNode->color == BLACK)) &&
             ((brother->leftNode != NULL) && brother->leftNode->color == RED)){
                 brother->color = RED;
                 brother->leftNode->color = BLACK;
@@ -302,7 +302,7 @@ void deleteCase4(RedBlackTree* current){
 void deleteCase3(RedBlackTree* current){
     RedBlackTree *brother = GetBrother(current);
 
-    if ((current->parent->color == BLACK && brother->color == BLACK) &&
+    if ((current->parent->color == BLACK && (brother == NULL || brother->color == BLACK)) &&
     (((brother->leftNode == NULL)) || (brother->leftNode != NULL && brother->leftNode->color == BLACK)) &&
     (((brother->rightNode == NULL)) || (brother->rightNode != NULL && brother->rightNode->color == BLACK))){
         brother->color = RED;
@@ -316,7 +316,7 @@ void deleteCase2(RedBlackTree* current){
 
     if (brother->color == RED){
         current->parent->color = RED;
-        brother->color == BLACK;
+        brother->color = BLACK;
         if (current == current->parent->leftNode)
             RotateLeft(current->parent);
         else
@@ -352,7 +352,7 @@ RedBlackTree* RedBlackTreeDelete (RedBlackTree* root, unsigned int ID){
                 return root;
             } else {
                 RedBlackTree* son = (current->leftNode == NULL) ? current->rightNode : current->leftNode; // get son or null
-                if (son != NULL && son->color == RED){
+                if (son != NULL){
                     current->data = son->data;
                     CutConnectWithParent(son);
                     free(son);
@@ -385,6 +385,8 @@ RedBlackTree* RedBlackTreeDelete (RedBlackTree* root, unsigned int ID){
 }
 
 void RedBlackTreeFree(RedBlackTree* root){
+    if (root == NULL)
+        return;
     if (root->leftNode != NULL)
         RedBlackTreeFree (root->leftNode);
 
@@ -393,24 +395,3 @@ void RedBlackTreeFree(RedBlackTree* root){
 
         free(root);
 }
-
-// #if !defined(WORK_MODE)
-// int main(){
-//     RedBlackTree* root = NULL;
-
-//     for (int i = 0; i <= 10; i++){
-//         Data data;
-//         data.ID = i;
-//         sprintf(data.name, "%d", i);
-//         sprintf(data.surname, "%d", i);
-
-//         root = RedBlackTreeInsert(root, data);
-//     }
-
-//     for (int i = 10; i >= 0; i--){
-//         root = RedBlackTreeDelete(root, i);
-//     }
-
-//     return 0;
-// }
-// #endif
