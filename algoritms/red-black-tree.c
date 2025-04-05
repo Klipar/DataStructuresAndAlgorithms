@@ -292,7 +292,7 @@ void deleteCase4(RedBlackTree* current){
 
     if (current->parent->color == RED && ((brother == NULL) || brother->color == BLACK) &&
         (((brother->leftNode == NULL)) || (brother->leftNode != NULL && brother->leftNode->color == BLACK)) &&
-        (((brother->rightNode == NULL)) || (brother->rightNode != NULL || brother->rightNode->color == BLACK))){
+        (((brother->rightNode == NULL)) || (brother->rightNode != NULL && brother->rightNode->color == BLACK))){
         brother->color = RED;
         current->parent->color = BLACK;
     } else
@@ -394,4 +394,42 @@ void RedBlackTreeFree(RedBlackTree* root){
         RedBlackTreeFree (root->rightNode);
 
         free(root);
+}
+
+bool validateRBTree(RedBlackTree* node, int blackCount, int* pathBlackCount) {
+    if (node == NULL) {
+        int totalBlack = blackCount + 1;
+        if (*pathBlackCount == -1) {
+            *pathBlackCount = totalBlack;
+        } else if (totalBlack != *pathBlackCount) {
+            return false;
+        }
+        return true;
+    }
+
+    // Property: if the node is red, its children must be black
+    if (node->color == RED) {
+        if ((node->leftNode && node->leftNode->color == RED) ||
+            (node->rightNode && node->rightNode->color == RED)) {
+            return false;
+        }
+    }
+
+    // Update the black node counter
+    int newBlackCount = blackCount;
+    if (node->color == BLACK) {
+        newBlackCount++;
+    }
+
+    return validateRBTree(node->leftNode, newBlackCount, pathBlackCount) &&
+           validateRBTree(node->rightNode, newBlackCount, pathBlackCount);
+}
+
+bool isValidRedBlackTree(RedBlackTree* root) {
+    if (root == NULL) return true;
+
+    if (root->color != BLACK) return false;
+
+    int pathBlackCount = -1;
+    return validateRBTree(root, 0, &pathBlackCount);
 }
