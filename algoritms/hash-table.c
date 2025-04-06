@@ -32,6 +32,9 @@ typedef struct HashTable {
     float loadFactor;
 } HashTable;
 
+HashTable* HashTableInsert (HashTable* hashTable, Data data);
+HashTable* HashTableResize(HashTable* hashTable);
+
 HashTable* HashTableInit(unsigned int size, float loadFactor){
     HashTable* table = malloc (sizeof(HashTable));
 
@@ -78,20 +81,22 @@ void HasTablePrint (HashTable* hashTable){
     }
 }
 
-unsigned int HashTableGetArrId(HashTable* hashTable, unsigned int ID, GetIdType type){
-    if (hashTable == NULL)
+unsigned int HashTableGetArrId(HashTable** hashTable, unsigned int ID, GetIdType type){
+    if (hashTable == NULL || *hashTable == NULL)
         return 0;
 
-    unsigned int hash1 = ID % hashTable->size;
-    unsigned int hash2 = 1 + (ID % (hashTable->size-1));
+    unsigned int hash1 = ID % (*hashTable)->size;
+    unsigned int hash2 = 1 + (ID % ((*hashTable)->size-1));
     unsigned int arrID;
-    for (unsigned int i = 0; true ; i++){
-        arrID = (hash1 + i*hash2) % hashTable->size;
-        if  ((hashTable->arr[arrID].ID == ID) ||
-            (type == SearchAndDelete && hashTable->arr[arrID].ID == DATA_NOT_EXIST) ||
-            (type == Insert && (hashTable->arr[arrID].ID == DATA_NOT_EXIST || hashTable->arr[arrID].ID ==DATA_DELETED)))
+    for (unsigned int i = 0; i < (*hashTable)->size ; i++){
+        arrID = (hash1 + i*hash2) % (*hashTable)->size;
+        if  (((*hashTable)->arr[arrID].ID == ID) ||
+            (type == SearchAndDelete && (*hashTable)->arr[arrID].ID == DATA_NOT_EXIST) ||
+            (type == Insert && ((*hashTable)->arr[arrID].ID == DATA_NOT_EXIST || (*hashTable)->arr[arrID].ID ==DATA_DELETED)))
             return arrID;
     }
+    *hashTable = HashTableResize(*hashTable);
+    return HashTableGetArrId(hashTable, ID, type);
 }
 
 void HashTableFree (HashTable* hashTable){
@@ -107,18 +112,10 @@ HashTable* HashTableInsert (HashTable* hashTable, Data data){
     if (hashTable == NULL)
         hashTable = HashTableInit(DEFAULT_SIZE, LOADFACTOR);
 
-    if ((float)hashTable->elementCount/(float)hashTable->size >= LOADFACTOR){
-        HashTable* newTable = HashTableInit(hashTable->size*2, LOADFACTOR);
+    if ((float)hashTable->elementCount/(float)hashTable->size >= hashTable->loadFactor)
+        hashTable = HashTableResize(hashTable);
 
-        for (int i = 0; i < hashTable->size; i++) //copy all previous data
-            if  (hashTable->arr[i].ID != DATA_NOT_EXIST && hashTable->arr[i].ID != DATA_DELETED)
-                newTable = HashTableInsert(newTable, hashTable->arr[i]);
-
-        HashTableFree(hashTable);
-        hashTable = newTable;
-    }
-
-    unsigned int arrID = HashTableGetArrId(hashTable, data.ID, Insert);
+    unsigned int arrID = HashTableGetArrId(&hashTable, data.ID, Insert);
     if (hashTable->arr[arrID].ID == DATA_NOT_EXIST || hashTable->arr[arrID].ID == DATA_DELETED)
         hashTable->elementCount++;
     hashTable->arr[arrID] = data;
@@ -126,10 +123,21 @@ HashTable* HashTableInsert (HashTable* hashTable, Data data){
     return hashTable;
 }
 
+HashTable* HashTableResize(HashTable* hashTable){
+    HashTable* newTable = HashTableInit(hashTable->size*2, hashTable->loadFactor);
+
+    for (int i = 0; i < hashTable->size; i++) //copy all previous data
+        if  (hashTable->arr[i].ID != DATA_NOT_EXIST && hashTable->arr[i].ID != DATA_DELETED)
+            newTable = HashTableInsert(newTable, hashTable->arr[i]);
+
+    HashTableFree(hashTable);
+    return newTable;
+}
+
 Data* HashTableSearch (HashTable* hashTable, unsigned int ID){
     if (hashTable == NULL)
         return NULL;
-    Data* data = hashTable->arr+HashTableGetArrId(hashTable, ID, SearchAndDelete);
+    Data* data = hashTable->arr+HashTableGetArrId(&hashTable, ID, SearchAndDelete);
     if (data->ID != DATA_NOT_EXIST && data->ID != DATA_DELETED)
         return data;
     return NULL;
