@@ -46,7 +46,8 @@ void printTestAlgorithm(TestAlgorithms testAlgorithm, TestGlobal testGlobal, cha
     printf("Max Memory Used by Algorithm: %u KB\n", testAlgorithm.MaxMemoryUse / 1024);
 }
 
-int main(){
+
+void testFromFile (const char* filePath){
     FILE *file;
     char line[100];
 
@@ -62,11 +63,11 @@ int main(){
     TestAlgorithms testTree_2_3 = {};
     TestAlgorithms testRedBlackTree = {};
 
-    file = fopen("tests/tests/test_10000000.txt", "r");
+    file = fopen(filePath, "r");
 
     if (file == NULL) {
         printf("File could not be opened.\n");
-        return 1;
+        return;
     }
 
     while (fgets(line, sizeof(line), file) != NULL) {
@@ -75,7 +76,7 @@ int main(){
 
             if (sscanf(line, "i %d %[^ ] %[^\n]", &data.ID, data.name, data.surname) != 3) {
                 printf("pars failed while parsing string:\n%s", line);
-                return 1;
+                return;
             }
 
             test.InsertCounter++;
@@ -103,7 +104,7 @@ int main(){
 
             if (sscanf(line, "s %d", &ID) != 1) {
                 printf("pars failed while parsing string:\n%s", line);
-                return 1;
+                return;
             }
 
             test.SearchCounter++;
@@ -115,7 +116,7 @@ int main(){
 
             if (tmpHashTable == NULL){
                 printf("Search HashTable failed, for ID %d\n", ID);
-                return 1;
+                return;
             }
 
             Tree_2_3* tmpTree_2_3;
@@ -125,7 +126,7 @@ int main(){
 
             if (tmpTree_2_3 == NULL){
                 printf("Search Tree_2_3 failed, for ID %d\n", ID);
-                return 1;
+                return;
             }
 
             Data* tmpRedBlackTree;
@@ -135,7 +136,7 @@ int main(){
 
             if (tmpRedBlackTree == NULL){
                 printf("Search RedBlackTree failed, for ID %d\n", ID);
-                return 1;
+                return;
             }
 
         } else if (line[0] == 'r'){
@@ -143,7 +144,7 @@ int main(){
 
             if (sscanf(line, "r %d", &ID) != 1) {
                 printf("pars failed while parsing string:\n%s", line);
-                return 1;
+                return;
             }
 
             test.DeleteCounter++;
@@ -170,5 +171,15 @@ int main(){
     printTestAlgorithm(testHashTable, test, "Hash table");
     printTestAlgorithm(testTree_2_3, test, "2-3 tree");
     printTestAlgorithm(testRedBlackTree, test, "Red-black tree");
+}
+
+int main(){
+    testFromFile("tests/tests/test_10.txt");
+    testFromFile("tests/tests/test_100.txt");
+    testFromFile("tests/tests/test_1000.txt");
+    testFromFile("tests/tests/test_10000.txt");
+    testFromFile("tests/tests/test_100000.txt");
+    testFromFile("tests/tests/test_1000000.txt");
+    testFromFile("tests/tests/test_10000000.txt");
     return 0;
 }
