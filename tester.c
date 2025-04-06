@@ -62,7 +62,7 @@ int main(){
     TestAlgorithms testTree_2_3 = {};
     TestAlgorithms testRedBlackTree = {};
 
-    file = fopen("tests/tests/test_1000.txt", "r");
+    file = fopen("tests/tests/test_10000000.txt", "r");
 
     if (file == NULL) {
         printf("File could not be opened.\n");
@@ -70,8 +70,6 @@ int main(){
     }
 
     while (fgets(line, sizeof(line), file) != NULL) {
-        // printf("%s", line);
-
         if (line[0] == 'i'){
             Data data;
 
@@ -154,21 +152,15 @@ int main(){
             HashTableDelete(hashTable, ID);
             testHashTable.DeleteTimer += clock() - timeStump;
 
-
             timeStump = clock();
-            Tree_2_3_Delete(tree_2_3, ID);
+            tree_2_3 = Tree_2_3_Delete(tree_2_3, ID);
             testTree_2_3.DeleteTimer += clock() - timeStump;
 
             timeStump = clock();
-            RedBlackTreeDelete(redBlackTree, ID);
+            redBlackTree = RedBlackTreeDelete(redBlackTree, ID);
             testRedBlackTree.DeleteTimer += clock() - timeStump;
         }
-
-
-
     }
-
-    // HasTablePrint(hashTable);
 
     fclose(file);
     HashTableFree(hashTable);

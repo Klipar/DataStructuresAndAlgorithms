@@ -53,7 +53,7 @@ void ObsidianVisualization(Tree_2_3 *root, const char *dirName){
         else
             fprintf(file, "Left node: [[%d.md]]\n", root->leftNode->leftData.ID);
 
-        ObsidianVisualization(root->leftNode, "TreeVisualization");
+        ObsidianVisualization(root->leftNode, dirName);
     }
     if (root->middleNode != NULL){
         if (root->middleNode->isRightExist)
@@ -61,7 +61,7 @@ void ObsidianVisualization(Tree_2_3 *root, const char *dirName){
         else
             fprintf(file, "Middle node: [[%d.md]]\n", root->middleNode->leftData.ID);
 
-        ObsidianVisualization(root->middleNode, "TreeVisualization");
+        ObsidianVisualization(root->middleNode, dirName);
     }
     if (root->rightNode != NULL && root->isRightExist){
         if (root->rightNode->isRightExist)
@@ -69,7 +69,7 @@ void ObsidianVisualization(Tree_2_3 *root, const char *dirName){
         else
             fprintf(file, "Right node: [[%d.md]]\n", root->rightNode->leftData.ID);
 
-        ObsidianVisualization(root->rightNode, "TreeVisualization");
+        ObsidianVisualization(root->rightNode, dirName);
     }
     fclose(file);
 }
@@ -212,13 +212,16 @@ Tree_2_3* Tree_2_3_Search (Tree_2_3 *root, int ID){
 }
 
 Data getMaxData (Tree_2_3 *root){ //if root is NULL, an error will occur. It is handled before calling the function
-    if (root->rightNode)
-        return getMaxData(root->rightNode);
-    if (root->middleNode)
-        return getMaxData(root->middleNode);
+    if (root->leftNode == NULL){
+        if (root->isRightExist)
+            return root->rightData;
+        else
+            return root->leftData;
+    }
     if (root->isRightExist)
-        return root->rightData;
-    return root->leftData;
+        return getMaxData(root->rightNode);
+    else
+        return getMaxData(root->middleNode);
 }
 
 Tree_2_3* Tree_2_3_Delete (Tree_2_3 *root, int ID){
@@ -279,6 +282,7 @@ Tree_2_3* Tree_2_3_Delete (Tree_2_3 *root, int ID){
                         root->leftNode->middleNode = root->middleNode->leftNode;
                         root->middleNode->leftNode = root->middleNode->middleNode;
                         root->middleNode->middleNode = root->middleNode->rightNode;
+                        root->middleNode->rightNode = NULL;
                         return root;
                     } else {
                         root->middleNode->isRightExist = true;
@@ -301,6 +305,7 @@ Tree_2_3* Tree_2_3_Delete (Tree_2_3 *root, int ID){
                         root->leftNode->rightData = root->leftNode->leftData;
                         root->leftNode->leftData = root->leftData;
                         root->leftData = root->rightData;
+                        root->rightNode = NULL;
                         root->isRightExist = false;
                         return root;
                     } else if (root->middleNode->isRightExist){
@@ -315,12 +320,13 @@ Tree_2_3* Tree_2_3_Delete (Tree_2_3 *root, int ID){
                         root->middleNode->isRightExist = true;
                         root->middleNode->rightData = root->middleNode->leftData;
                         root->middleNode->leftData = root->leftData;
+                        root->leftData = root->rightData;
                         root->middleNode->rightNode = root->middleNode->middleNode;
                         root->middleNode->middleNode = root->middleNode->leftNode;
                         root->middleNode->leftNode = tmp;
                         root->leftNode = root->middleNode;
                         root->middleNode = root->rightNode;
-                        root->leftData = root->rightData;
+                        root->rightNode = NULL;
                         root->isRightExist = false;
                         return root;
 
@@ -328,10 +334,11 @@ Tree_2_3* Tree_2_3_Delete (Tree_2_3 *root, int ID){
                         root->leftNode = initNode(root->leftData);
                         root->leftData = root->middleNode->leftData;
                         root->middleNode->leftData = root->middleNode->rightData;
-                        root->leftNode = tmp;
+                        root->leftNode->leftNode = tmp;
                         root->leftNode->middleNode = root->middleNode->leftNode;
                         root->middleNode->leftNode = root->middleNode->middleNode;
                         root->middleNode->middleNode = root->middleNode->rightNode;
+                        root->middleNode->rightNode = NULL;
                         root->middleNode->isRightExist = false;
                         return root;
                     }
@@ -351,6 +358,7 @@ Tree_2_3* Tree_2_3_Delete (Tree_2_3 *root, int ID){
                 } else{
                     root->middleNode->isRightExist = true;
                     root->middleNode->rightData = root->rightData;
+                    root->rightNode = NULL;
                     root->isRightExist = false;
                     return root;
                 }
@@ -358,6 +366,7 @@ Tree_2_3* Tree_2_3_Delete (Tree_2_3 *root, int ID){
                 if (!root->middleNode->isRightExist){
                     root->middleNode->isRightExist = true;
                     root->middleNode->rightData = root->rightData;
+                    root->rightNode = NULL;
                     root->isRightExist = false;
                     root->middleNode->rightNode = tmp;
                     return root;
@@ -366,6 +375,7 @@ Tree_2_3* Tree_2_3_Delete (Tree_2_3 *root, int ID){
                     root->rightData = root->middleNode->rightData;
                     root->rightNode->middleNode = tmp;
                     root->rightNode->leftNode = root->middleNode->rightNode;
+                    root->middleNode->rightNode = NULL;
                     root->middleNode->isRightExist = false;
                     return root;
                 }
@@ -402,9 +412,10 @@ Tree_2_3* Tree_2_3_Delete (Tree_2_3 *root, int ID){
                     } else if (root->leftNode->isRightExist){
                         root->middleNode = initNode(root->leftData);
                         root->leftData = root->leftNode->rightData;
-                        root->leftNode->isRightExist = false;
-                        root->middleNode->middleNode = tmp;
                         root->middleNode->leftNode = root->leftNode->rightNode;
+                        root->middleNode->middleNode = tmp;
+                        root->leftNode->rightNode = NULL;
+                        root->leftNode->isRightExist = false;
                         return root;
                     }
                 }
@@ -415,6 +426,8 @@ Tree_2_3* Tree_2_3_Delete (Tree_2_3 *root, int ID){
                         root->leftNode->rightData = root->leftData;
                         root->leftData = root->rightData;
                         root->middleNode = root->rightNode;
+                        root->rightNode = NULL;
+                        root->isRightExist = false;
                         return root;
                     } else {
                         root->middleNode = initNode(root->leftData);
@@ -426,8 +439,10 @@ Tree_2_3* Tree_2_3_Delete (Tree_2_3 *root, int ID){
                     if (!root->leftNode->isRightExist){
                         root->leftNode->isRightExist = true;
                         root->leftNode->rightData = root->leftData;
-                        root->leftNode->rightNode = tmp;
                         root->leftData = root->rightData;
+                        root->leftNode->rightNode = tmp;
+                        root->middleNode = root->rightNode;
+                        root->rightNode = NULL;
                         root->isRightExist = false;
                         return root;
                     } else if (root->leftNode->isRightExist){
@@ -435,6 +450,7 @@ Tree_2_3* Tree_2_3_Delete (Tree_2_3 *root, int ID){
                         root->leftData = root->leftNode->rightData;
                         root->middleNode->leftNode = root->leftNode->rightNode;
                         root->middleNode->middleNode = tmp;
+                        root->leftNode->rightNode = NULL;
                         root->leftNode->isRightExist = false;
                         return root;
                     }
@@ -443,14 +459,24 @@ Tree_2_3* Tree_2_3_Delete (Tree_2_3 *root, int ID){
 
         } else if (root->rightData.ID == ID && root->isRightExist){
             Data data = getMaxData(root->middleNode);
-            tmp = Tree_2_3_Delete(root, data.ID);
-            tmp->rightData = data;
-            return tmp;
+            root = Tree_2_3_Delete(root, data.ID);
+            tmp = Tree_2_3_Search(root, ID);
+            if (tmp->leftData.ID == ID)
+                tmp->leftData = data;
+            else
+                tmp->rightData;
+
+            return root;
         } if (root->leftData.ID == ID){
             Data data = getMaxData(root->leftNode);
-            tmp = Tree_2_3_Delete(root, data.ID);
-            tmp->leftData = data;
-            return tmp;
+            root = Tree_2_3_Delete(root, data.ID);
+            tmp = Tree_2_3_Search(root, ID);
+            if (tmp->leftData.ID == ID)
+                tmp->leftData = data;
+            else
+                tmp->rightData;
+
+            return root;
         }else {
             return root;    // item does not exist
         }
