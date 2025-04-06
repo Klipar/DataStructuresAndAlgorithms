@@ -50,7 +50,7 @@ void printTestAlgorithm(TestAlgorithms testAlgorithm, TestGlobal testGlobal, cha
 void testFromFile (const char* filePath){
     FILE *file;
     char line[100];
-
+    bool IsCountedFor23tree = false;
     clock_t timeStump;
 
     HashTable* hashTable = HashTableInit(50, 0.70);
@@ -92,7 +92,6 @@ void testFromFile (const char* filePath){
             timeStump = clock();
             tree_2_3 = Tree_2_3_Insert(tree_2_3, data);
             testTree_2_3.InsertTimer += clock() - timeStump;
-            testTree_2_3.MaxMemoryUse += sizeof(Tree_2_3);
 
             timeStump = clock();
             redBlackTree = RedBlackTreeInsert(redBlackTree, data);
@@ -100,6 +99,11 @@ void testFromFile (const char* filePath){
             testRedBlackTree.MaxMemoryUse += sizeof(RedBlackTree);
 
         } else if (line[0] == 's'){
+            if (!IsCountedFor23tree){
+                testTree_2_3.MaxMemoryUse = sizeof(Tree_2_3)*countNodes(tree_2_3);
+                IsCountedFor23tree = true;
+            }
+
             unsigned int ID;
 
             if (sscanf(line, "s %d", &ID) != 1) {

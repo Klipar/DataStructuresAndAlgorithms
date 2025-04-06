@@ -27,6 +27,13 @@ Tree_2_3* initNode(Data data){
     return node;
 }
 
+int countNodes(Tree_2_3* root) {
+    if (root == NULL) {
+        return 0;
+    }
+    return 1 + countNodes(root->leftNode) + countNodes(root->rightNode) + countNodes(root->middleNode);
+}
+
 void ObsidianVisualization(Tree_2_3 *root, const char *dirName){
     if (root == NULL)
         return;
