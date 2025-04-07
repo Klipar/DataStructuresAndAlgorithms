@@ -46,12 +46,140 @@ void printTestAlgorithm(TestAlgorithms testAlgorithm, TestGlobal testGlobal, cha
     printf("Max Memory Used by Algorithm: %u KB\n", testAlgorithm.MaxMemoryUse / 1024);
 }
 
+void TestIteration(HashTable** hashTable, TestAlgorithms* testHashTable,
+    Tree_2_3** tree_2_3, RedBlackTree** redBlackTree,
+    TestAlgorithms* testTree_2_3, TestAlgorithms* testRedBlackTree, TestGlobal* test, const char* line){
+
+    clock_t timeStump;
+
+    if (line[0] == 'i'){
+        Data data;
+
+        if (sscanf(line, "i %d %[^ ] %[^\n]", &data.ID, data.name, data.surname) != 3 || data.ID >= 10000000) {
+            printf("ERROR\n");
+            return;
+        }
+
+        (*test).InsertCounter++;
+
+        timeStump = clock();
+        (*hashTable) = HashTableInsert((*hashTable), data);
+        (*testHashTable).InsertTimer += clock() - timeStump;
+        unsigned int tmpByte = (*hashTable)->size*sizeof(Data)+sizeof(HashTable);
+        if (tmpByte > (*testHashTable).MaxMemoryUse)
+            (*testHashTable).MaxMemoryUse = tmpByte;
+
+
+        timeStump = clock();
+        *tree_2_3 = Tree_2_3_Insert(*tree_2_3, data);
+        (*testTree_2_3).InsertTimer += clock() - timeStump;
+        unsigned int size = sizeof(Tree_2_3)*countNodes(*tree_2_3);
+        if (size > (*testTree_2_3).MaxMemoryUse)
+            (*testTree_2_3).MaxMemoryUse = size;
+        timeStump = clock();
+        *redBlackTree = RedBlackTreeInsert(*redBlackTree, data);
+        (*testRedBlackTree).InsertTimer += clock() - timeStump;
+        (*testRedBlackTree).MaxMemoryUse += sizeof(RedBlackTree);
+
+    } else if (line[0] == 's'){
+        unsigned int ID;
+
+        if (sscanf(line, "s %d", &ID) != 1 || ID >= 10000000) {
+            printf("ERROR\n");
+            return;
+        }
+
+        (*test).SearchCounter++;
+
+        Data* tmpHashTable;
+        timeStump = clock();
+        tmpHashTable = HashTableSearch((*hashTable), ID);
+        (*testHashTable).SearchTimer += clock() - timeStump;
+
+        Tree_2_3* tmpTree_2_3;
+        timeStump = clock();
+        tmpTree_2_3 = Tree_2_3_Search(*tree_2_3, ID);
+        (*testTree_2_3).SearchTimer += clock() - timeStump;
+
+        Data* tmpRedBlackTree;
+        timeStump = clock();
+        tmpRedBlackTree = RedBlackTreeSearch(*redBlackTree, ID);
+        (*testRedBlackTree).SearchTimer += clock() - timeStump;
+
+        if (tmpRedBlackTree == NULL && tmpTree_2_3 == NULL && tmpHashTable == NULL){
+            printf("ERROR\n");
+            return;
+        } else {
+            printf("%u %s %s\n", tmpRedBlackTree->ID, tmpRedBlackTree->name, tmpRedBlackTree->surname);
+        }
+
+    } else if (line[0] == 'r'){
+        unsigned int ID;
+
+        if (sscanf(line, "r %d", &ID) != 1 || ID >= 10000000) {
+            printf("ERROR\n");
+            return;
+        }
+
+        (*test).DeleteCounter++;
+
+        Data* tmpHashTable = HashTableSearch((*hashTable), ID);
+        Tree_2_3* tmpTree_2_3 = Tree_2_3_Search(*tree_2_3, ID);
+        Data* tmpRedBlackTree = RedBlackTreeSearch(*redBlackTree, ID);
+        if (tmpHashTable == NULL|| tmpTree_2_3 == NULL || tmpRedBlackTree == NULL){
+            printf("ERROR\n");
+            return;
+        }
+
+        timeStump = clock();
+        HashTableDelete(*hashTable, ID);
+        (*testHashTable).DeleteTimer += clock() - timeStump;
+
+        timeStump = clock();
+        *tree_2_3 = Tree_2_3_Delete(*tree_2_3, ID);
+        (*testTree_2_3).DeleteTimer += clock() - timeStump;
+
+        timeStump = clock();
+        *redBlackTree = RedBlackTreeDelete(*redBlackTree, ID);
+        (*testRedBlackTree).DeleteTimer += clock() - timeStump;
+    }
+
+}
+
+
+void testFromStdIO(){
+    int countOfOperations = 0;
+    char line[100];
+    HashTable* hashTable = HashTableInit(50, 0.70);
+    Tree_2_3 * tree_2_3 = NULL;
+    RedBlackTree* redBlackTree = NULL;
+
+    TestGlobal test = {};
+
+    TestAlgorithms testHashTable = {};
+    TestAlgorithms testTree_2_3 = {};
+    TestAlgorithms testRedBlackTree = {};
+
+    scanf ("%d", &countOfOperations);
+    getchar();
+    for (;countOfOperations >= 0; countOfOperations--){
+        fgets(line, sizeof(line), stdin);
+        if (line[0] == 'e'){
+            printTestAlgorithm(testHashTable, test, "Hash table");
+            printTestAlgorithm(testTree_2_3, test, "2-3 tree");
+            printTestAlgorithm(testRedBlackTree, test, "Red-black tree");
+        } else{
+            TestIteration(&hashTable, &testHashTable, &tree_2_3, &redBlackTree, &testTree_2_3, &testRedBlackTree, &test, line);
+        }
+    }
+    HashTableFree(hashTable);
+    Tree_2_3_Free(tree_2_3);
+    RedBlackTreeFree(redBlackTree);
+}
 
 void testFromFile (const char* filePath){
     FILE *file;
     char line[100];
-    bool IsCountedFor23tree = false;
-    clock_t timeStump;
 
     HashTable* hashTable = HashTableInit(50, 0.70);
     Tree_2_3 * tree_2_3 = NULL;
@@ -71,100 +199,7 @@ void testFromFile (const char* filePath){
     }
 
     while (fgets(line, sizeof(line), file) != NULL) {
-        if (line[0] == 'i'){
-            Data data;
-
-            if (sscanf(line, "i %d %[^ ] %[^\n]", &data.ID, data.name, data.surname) != 3) {
-                printf("pars failed while parsing string:\n%s", line);
-                return;
-            }
-
-            test.InsertCounter++;
-
-            timeStump = clock();
-            hashTable = HashTableInsert(hashTable, data);
-            testHashTable.InsertTimer += clock() - timeStump;
-            unsigned int tmpByte = hashTable->size*sizeof(Data)+sizeof(HashTable);
-            if (tmpByte > testHashTable.MaxMemoryUse)
-                testHashTable.MaxMemoryUse = tmpByte;
-
-
-            timeStump = clock();
-            tree_2_3 = Tree_2_3_Insert(tree_2_3, data);
-            testTree_2_3.InsertTimer += clock() - timeStump;
-
-            timeStump = clock();
-            redBlackTree = RedBlackTreeInsert(redBlackTree, data);
-            testRedBlackTree.InsertTimer += clock() - timeStump;
-            testRedBlackTree.MaxMemoryUse += sizeof(RedBlackTree);
-
-        } else if (line[0] == 's'){
-            if (!IsCountedFor23tree){
-                testTree_2_3.MaxMemoryUse = sizeof(Tree_2_3)*countNodes(tree_2_3);
-                IsCountedFor23tree = true;
-            }
-
-            unsigned int ID;
-
-            if (sscanf(line, "s %d", &ID) != 1) {
-                printf("pars failed while parsing string:\n%s", line);
-                return;
-            }
-
-            test.SearchCounter++;
-
-            Data* tmpHashTable;
-            timeStump = clock();
-            tmpHashTable = HashTableSearch(hashTable, ID);
-            testHashTable.SearchTimer += clock() - timeStump;
-
-            if (tmpHashTable == NULL){
-                printf("Search HashTable failed, for ID %d\n", ID);
-                return;
-            }
-
-            Tree_2_3* tmpTree_2_3;
-            timeStump = clock();
-            tmpTree_2_3 = Tree_2_3_Search(tree_2_3, ID);
-            testTree_2_3.SearchTimer += clock() - timeStump;
-
-            if (tmpTree_2_3 == NULL){
-                printf("Search Tree_2_3 failed, for ID %d\n", ID);
-                return;
-            }
-
-            Data* tmpRedBlackTree;
-            timeStump = clock();
-            tmpRedBlackTree = RedBlackTreeSearch(redBlackTree, ID);
-            testRedBlackTree.SearchTimer += clock() - timeStump;
-
-            if (tmpRedBlackTree == NULL){
-                printf("Search RedBlackTree failed, for ID %d\n", ID);
-                return;
-            }
-
-        } else if (line[0] == 'r'){
-            unsigned int ID;
-
-            if (sscanf(line, "r %d", &ID) != 1) {
-                printf("pars failed while parsing string:\n%s", line);
-                return;
-            }
-
-            test.DeleteCounter++;
-
-            timeStump = clock();
-            HashTableDelete(hashTable, ID);
-            testHashTable.DeleteTimer += clock() - timeStump;
-
-            timeStump = clock();
-            tree_2_3 = Tree_2_3_Delete(tree_2_3, ID);
-            testTree_2_3.DeleteTimer += clock() - timeStump;
-
-            timeStump = clock();
-            redBlackTree = RedBlackTreeDelete(redBlackTree, ID);
-            testRedBlackTree.DeleteTimer += clock() - timeStump;
-        }
+        TestIteration(&hashTable, &testHashTable, &tree_2_3, &redBlackTree, &testTree_2_3, &testRedBlackTree, &test, line);
     }
 
     fclose(file);
@@ -178,12 +213,13 @@ void testFromFile (const char* filePath){
 }
 
 int main(){
-    testFromFile("tests/tests/test_10.txt");
-    testFromFile("tests/tests/test_100.txt");
-    testFromFile("tests/tests/test_1000.txt");
-    testFromFile("tests/tests/test_10000.txt");
-    testFromFile("tests/tests/test_100000.txt");
-    testFromFile("tests/tests/test_1000000.txt");
-    testFromFile("tests/tests/test_10000000.txt");
+    // testFromFile("tests/tests/test_10.txt");
+    // testFromFile("tests/tests/test_100.txt");
+    // testFromFile("tests/tests/test_1000.txt");
+    // testFromFile("tests/tests/test_10000.txt");
+    // testFromFile("tests/tests/test_100000.txt");
+    // testFromFile("tests/tests/test_1000000.txt");
+    // testFromFile("tests/tests/test_10000000.txt");
+    testFromStdIO();
     return 0;
 }
