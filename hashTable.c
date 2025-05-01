@@ -6,6 +6,8 @@
 #define BASELOADFACTOR 0.75     // [0-1]
 #define BASESIZE 50         // [1 to N]
 
+#ifndef BDD_NODE_H
+#define BDD_NODE_H
 // Node of the BDD
 typedef struct BDD_node {
     struct BDD_node* low;          // pointer when variable == 0
@@ -13,21 +15,36 @@ typedef struct BDD_node {
     int var_index;                 // index of the variable (0, 1, ..., N-1)
     char value;                    // '0', '1', or '-' if not a terminal node
 } BDD_node;
+#endif // BDD_NODE_H
 
+#ifndef DATA_H
+#define DATA_H
 typedef struct Data {
     struct Data* next;
-    BDD_node *link;
-    char *func;
+    BDD_node* link;
+    char* func;
 } Data;
+#endif // DATA_H
 
+#ifndef HASH_TABLE_H
+#define HASH_TABLE_H
 typedef struct HashTable {
     Data** arr;
     unsigned size;
     unsigned elementCount;
     float loadFactor;
 } HashTable;
+#endif // HASH_TABLE_H
 
-unsigned long getStrungHash(unsigned char *string){
+HashTable* getHashTable(unsigned size, float loadFactor){
+    HashTable* hashTable = calloc (1, sizeof(HashTable));
+    hashTable->size = size;
+    hashTable->arr = calloc(size, sizeof(Data*));
+    hashTable->loadFactor = loadFactor;
+    return hashTable;
+}
+
+unsigned long getStringHash(unsigned char *string){
     unsigned long stringHash = 5381;
     int tmp;
 
@@ -82,7 +99,7 @@ Data* SearchHashTable (HashTable* hashTable, char* string){
     if (hashTable == NULL)
         return NULL;
 
-    return SearchLinkedList(hashTable->arr[getStrungHash(string) % hashTable->size], string);
+    return SearchLinkedList(hashTable->arr[getStringHash(string) % hashTable->size], string);
 }
 
 void PrintLinkedList(Data* data){
@@ -112,7 +129,7 @@ void PrintHasTable (HashTable* hashTable){
 
 HashTable* HashTableInsert (HashTable* hashTable, Data* data){
     if (hashTable == NULL)
-        hashTable = getHashTable(BASESIZE, BASELOADFACTOR);
+        hashTable = getHashTable(BASESIZE, (float)BASELOADFACTOR);
 
     if ((float)hashTable->elementCount/(float)hashTable->size >= hashTable->loadFactor){
         HashTable* newTable = getHashTable(hashTable->size*2, hashTable->loadFactor);
@@ -120,8 +137,10 @@ HashTable* HashTableInsert (HashTable* hashTable, Data* data){
         for (int i = 0; i < hashTable->size; i++){ //copy all previous data
             Data* element = hashTable->arr[i];
             while (element != NULL){
+                Data* next = element->next;
+                element->next = NULL;
                 newTable = HashTableInsert(newTable, element);
-                element = element->next;
+                element = next;
             }
         }
 
@@ -129,7 +148,7 @@ HashTable* HashTableInsert (HashTable* hashTable, Data* data){
         hashTable = newTable;
     }
 
-    unsigned int arrId = getStrungHash(data->func) % hashTable->size;
+    unsigned int arrId = getStringHash(data->func) % hashTable->size;
     if (hashTable->arr[arrId] == NULL){
         hashTable->arr[arrId] = data;
         hashTable->elementCount++;
@@ -138,7 +157,7 @@ HashTable* HashTableInsert (HashTable* hashTable, Data* data){
             hashTable->elementCount++;
         } else{
             if (SearchLinkedList(hashTable->arr[arrId], data->func) != data){
-                free(data->func)
+                free(data->func);
                 free(data);    // free extra copied data
             }
         }
@@ -146,19 +165,11 @@ HashTable* HashTableInsert (HashTable* hashTable, Data* data){
     return hashTable;
 }
 
-HashTable* getHashTable(unsigned size, float loadFactor){
-    HashTable* hashTable = calloc (1, sizeof(HashTable));
-    hashTable->size = size;
-    hashTable->arr = calloc(size, sizeof(Data*));
-    hashTable->loadFactor = loadFactor;
-    return hashTable;
-}
-
 bool HashTableDelate(HashTable* hashTable, char *string){
     if (hashTable == NULL)
         return false;
 
-    unsigned int id = getStrungHash(string) % hashTable->size;
+    unsigned int id = getStringHash(string) % hashTable->size;
     if (hashTable->arr[id] != NULL){
         if (strcmp(hashTable->arr[id]->func, string) == 0){
             Data* dump = hashTable->arr[id];
@@ -172,7 +183,7 @@ bool HashTableDelate(HashTable* hashTable, char *string){
         Data* previous = hashTable->arr[id];
         Data* current = hashTable->arr[id]->next;
         while (current != NULL){
-            if (strcmp(hashTable->arr[id]->func, string) == 0){
+            if (strcmp(current->func, string) == 0){
                 previous->next = current->next;
                 free(current->func);
                 free(current);
@@ -187,33 +198,40 @@ bool HashTableDelate(HashTable* hashTable, char *string){
     }
 }
 
-int main(){
-    // HashTable* hashTable;
+// int main() {
+//     FILE *file = fopen("tests/tests/test_10000000.txt", "r");
+//     if (!file) {
+//         perror("Failed to open file!");
+//         return 1;
+//     }
 
-    // for (int i = 0; i <= 50; i++){
-    //     Data* data = calloc(1, sizeof(Data));
-    //     data->ID = i;
-    //     sprintf(data->name, "%d", i);
-    //     sprintf(data->surname, "%d", i);
+//     HashTable* hashTable = getHashTable(50, 0.75f);
 
-    //     hashTable = HashTableInsert(hashTable, data);
-    // }
+//     char buffer[1024];
+//     while (fgets(buffer, sizeof(buffer), file)) {
+//         if (buffer[0] == '\n' || buffer[0] == '\0') continue;
+//         buffer[strcspn(buffer, "\n")] = '\0';
 
-    // for (int i = 0; i <= 50; i++){
-    //     if (SearchHashTable(hashTable, i) != NULL)
-    //         printf("%d\n", SearchHashTable(hashTable, i)->ID);
-    //     else{
-    //         printf("NotFound = %d", i);
-    //         SearchHashTable(hashTable, i);
-    //     }
-    // }
-    // PrintHasTable(hashTable);
-    // for (int i = 0; i <= 50; i++){
-    //     if (!HashTableDelate(hashTable, i)){
-    //         printf("ERROR");
-    //     }
-    // }
-    // PrintHasTable(hashTable);
+//         if (buffer[0] == 'i') {
+//             buffer[0] = '_';
+//             Data* data = calloc(1, sizeof(Data));
+//             data->func = calloc(strlen(buffer) + 1, sizeof(char));
+//             strcpy(data->func, buffer);
+//             hashTable = HashTableInsert(hashTable, data);
+//         } else if (buffer[0] == 's') {
+//             buffer[0] = '_';
+//             if (SearchHashTable(hashTable, buffer) == NULL){
+//                 printf("fail to fond string -> \n%s", buffer);
+//             }
+//         } else if (buffer[0] == 'r') {
+//             buffer[0] = '_';
+//             if (!HashTableDelate(hashTable, buffer)){
+//                 printf("fail to delete string -> \n%s", buffer);
+//             }
+//         }
+//     }
 
-    return 0;
-}
+//     free(hashTable);
+//     fclose(file);
+//     return 0;
+// }
