@@ -23,14 +23,14 @@ inp += tmp
 tmp = [""]
 
 for i in range(0, size):
-    tmp.append(f"s {i}\n")
+    tmp.append(f"s {i} {name[i%len(name)][1]} {surname[i%len(surname)][1]}\n")
 
 random.shuffle(tmp)
 inp += tmp
 tmp = [""]
 
 for i in range(0, size):
-    tmp.append(f"r {i}\n")
+    tmp.append(f"r {i} {name[i%len(name)][1]} {surname[i%len(surname)][1]}\n")
 
 random.shuffle(tmp)
 inp += tmp
