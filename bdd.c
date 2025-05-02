@@ -24,6 +24,12 @@ typedef struct BDD {
     int size;                      // number of nodes in the BDD
 } BDD;
 
+// Main BDD structure
+typedef struct TermManager {
+    char **terms;
+    int countOfTerms;
+} TermManager;
+
 void BDD_free(BDD *bdd){
     // TODO: implement free of nodes
     free(bdd);
@@ -84,10 +90,47 @@ void sortInTerms(char* func, char* order){
     }
 }
 
+void printTerms(TermManager tm){
+    for (int i = 0; i < tm.countOfTerms; i++){
+        printf("%s\n", tm.terms[i]);
+    }
+}
+
+TermManager getTerms (char* func){
+    TermManager tm = {NULL, 1};
+
+    for (int i = 0; i < strlen(func); i++) {
+        if (func[i] == '+'){
+            tm.countOfTerms++;
+        }
+    }
+
+    tm.terms = calloc(tm.countOfTerms, sizeof(char*));
+    int currentTerm = 0;
+    int sizeOfTerm = 0;
+    for (int i = 0; i < strlen(func); i++){
+        for (sizeOfTerm = 0; sizeOfTerm+i < strlen(func); sizeOfTerm++){
+            if (func[sizeOfTerm+i] == '+')
+                break;
+        }
+        tm.terms[currentTerm] = malloc(sizeOfTerm*sizeof(char));
+        for (int k = 0; k <= sizeOfTerm; k++){
+            if (func[k+i] != '+')
+            tm.terms[currentTerm][k] = func[k+i];
+        }
+        i += sizeOfTerm;
+        currentTerm++;
+    }
+    printTerms(tm);
+
+    return tm;
+}
+
 BDD *BDD_create (char* func, char* order){
     BDD* bdd = calloc(1, sizeof(BDD));
 
     sortInTerms(func, order);
+    TermManager tm = getTerms(func);
 
     return bdd;
 }
