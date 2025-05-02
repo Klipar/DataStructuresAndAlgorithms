@@ -25,7 +25,8 @@
         "text_encoding": "c",
         "typeindex": "c",
         "typeinfo": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "cstdio": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     "cSpell.words": [
