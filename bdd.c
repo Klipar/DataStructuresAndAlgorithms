@@ -24,7 +24,7 @@ typedef struct BDD {
     int size;                      // number of nodes in the BDD
 } BDD;
 
-// Main BDD structure
+// Term manager for working with terms
 typedef struct TermManager {
     char **terms;
     int countOfTerms;
@@ -121,16 +121,113 @@ TermManager getTerms (char* func){
         i += sizeOfTerm;
         currentTerm++;
     }
-    printTerms(tm);
 
     return tm;
+}
+
+int getTermSize(char *term){
+    int size = 0;
+    for (int i = 0; i < strlen(term); i++){
+        if (term[i] != '+' && term[i] != '!'){
+            size++;
+        }
+    }
+    return size;
+}
+
+void swapTerms(TermManager tm, int i){ //swap i and i+1 terms
+    char *tmp = tm.terms[i];
+    tm.terms[i] = tm.terms[i+1];
+    tm.terms[i+1] = tmp;
+}
+
+void sortTermsBySize(TermManager tm){
+    for (int i = 0; i < tm.countOfTerms-1; i++){
+        if(getTermSize(tm.terms[i]) > getTermSize(tm.terms[i+1])){
+            swapTerms(tm, i);
+            i = -1;
+            continue;
+        }
+    }
+}
+
+unsigned long long calculateWeightIteration(unsigned long long variable, int addValue){
+    variable *= 10;
+    variable += addValue;
+    return variable;
+}
+
+unsigned long long getTermWeight(char* term, char* order){
+    /* // system of calculating weight of term //
+    * ''   = 1
+    * '!A' = 2
+    * 'A'  = 3
+    *
+    * order == "ABC"
+    *  ABC == 333
+    * !ABC == 233
+    *    C == 113
+    * !A!C == 212
+    *     ...
+    */
+
+    unsigned long long weight = 0;
+    int tPointer = 0;       // term pointer
+    int oPointer = 0;       // order pointer
+
+    while (oPointer < strlen(order)){
+        if (tPointer < strlen(term)){
+            if (term[tPointer] == '!'){
+                tPointer++;
+            }
+
+            if (term[tPointer] != order[oPointer]){
+                weight = calculateWeightIteration(weight, 1);
+                oPointer++;
+                continue;
+            }
+
+            if (term[tPointer] == order[oPointer]) {
+                if (tPointer > 0 && term[tPointer-1] == '!'){
+                    weight = calculateWeightIteration(weight, 2);
+                    tPointer++;
+                    oPointer++;
+                } else {
+                    weight = calculateWeightIteration(weight, 3);
+                    tPointer++;
+                    oPointer++;
+                }
+            }
+        } else {
+            weight = calculateWeightIteration(weight, 1);
+            oPointer++;
+        }
+    }
+    return weight;
+}
+
+void sortTermsByWeight(TermManager tm, char* order){
+    for (int i = 0; i < tm.countOfTerms-1; i++){
+        if (getTermWeight(tm.terms[i], order) < getTermWeight(tm.terms[i+1], order)){
+            swapTerms(tm, i);
+            i = -1;
+            continue;
+        }
+    }
+}
+
+void sortTerms(TermManager tm, char* order){
+    sortTermsByWeight(tm, order);
+    sortTermsBySize(tm);
 }
 
 BDD *BDD_create (char* func, char* order){
     BDD* bdd = calloc(1, sizeof(BDD));
 
     sortInTerms(func, order);
+
     TermManager tm = getTerms(func);
+    sortTerms(tm, order);
 
     return bdd;
 }

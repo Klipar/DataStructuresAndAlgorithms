@@ -26,7 +26,8 @@
         "typeindex": "c",
         "typeinfo": "c",
         "string.h": "c",
-        "cstdio": "c"
+        "cstdio": "c",
+        "algorithm": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     "cSpell.words": [
