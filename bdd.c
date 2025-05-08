@@ -30,11 +30,15 @@ typedef struct BDD {
     int size;                      // number of nodes in the BDD
 } BDD;
 
+#ifndef TermManagerH
+#define TermManagerH
 // Term manager for working with terms
 typedef struct TermManager {
     char **terms;
     int countOfTerms;
+    char* order;
 } TermManager;
+#endif
 
 void BDD_free(BDD *bdd){
     // TODO: implement free of nodes
@@ -80,7 +84,7 @@ void swapVariable(char* string, int i){ // index of first variable. swap only va
     }
 }
 
-void sortInTerms(char* func, char* order){
+void sortOneTerm(char* func, char* order){
     for (int i = 0; i < strlen(func)-1; i++){ // pointer on func
         if (func[i] == '+' || func[i+1] == '+' || func[i] == '!') // we are in the middle between terms OR at !
             continue;
@@ -212,9 +216,9 @@ unsigned long long getTermWeight(char* term, char* order){
     return weight;
 }
 
-void sortTermsByWeight(TermManager tm, char* order){
+void sortTermsByWeight(TermManager tm){
     for (int i = 0; i < tm.countOfTerms-1; i++){
-        if (getTermWeight(tm.terms[i], order) < getTermWeight(tm.terms[i+1], order)){
+        if (getTermWeight(tm.terms[i], tm.order) < getTermWeight(tm.terms[i+1], tm.order)){
             swapTerms(tm, i);
             i = -1;
             continue;
@@ -222,8 +226,15 @@ void sortTermsByWeight(TermManager tm, char* order){
     }
 }
 
-void sortTerms(TermManager tm, char* order){
-    sortTermsByWeight(tm, order);
+void sortInTerms(TermManager tm){
+    for (int i = 0; i < tm.countOfTerms; i++){
+        sortOneTerm(tm.terms[i], tm.order);
+    }
+}
+
+void sortTerms(TermManager tm){
+    sortInTerms(tm);
+    sortTermsByWeight(tm);
     sortTermsBySize(tm);
 }
 
@@ -285,24 +296,28 @@ TermManager getSubTerms (TermManager tm, char var){ // change the original tm
 int calculateSize(BDD_node* root){
     if (root == NULL)
         return 0;
-    return 1 + calculateSize(BDD_node* root->high) + calculateSize(BDD_node* root->low);
+    return 1 + calculateSize(root->high) + calculateSize(root->low);
 }
 
-BDD_node* initNodes(BDD_node* node, TermManager tm, HashTable* hashTable, char* order){
+TermManager getAndPrepairTerms(char* func, char* order){
+    TermManager tm = getTerms(func);
+    tm.order = calloc(strlen(order)+1, sizeof(char));
+    strcpy(tm.order, order);
+    sortTerms(tm);
+    return tm;
+}
 
+BDD_node* initNodes(BDD_node* node, TermManager tm, HashTable* hashTable){
+    return NULL;
 }
 
 BDD *BDD_create (char* func, char* order){
     BDD* bdd = calloc(1, sizeof(BDD));
 
-    sortInTerms(func, order);
-
-    TermManager tm = getTerms(func);
-    sortTerms(tm, order);
-
+    TermManager tm = getAndPrepairTerms(func, order);
     HashTable* hashTable = getHashTable(50, 0.75f);
 
-    bdd->root = initNodes(NULL, tm, hashTable, order);
+    bdd->root = initNodes(NULL, tm, hashTable);
     bdd->size = calculateSize(bdd->root);
 
     freeTermManager(tm);
