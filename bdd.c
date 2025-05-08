@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "hashTable.c"
+
 /*
 *   Func forman = AB!C + !ABC
 *   '+' = OR
@@ -9,13 +11,17 @@
 *   '!' = NOT
 */
 
+#ifndef BDD_NODE_H
+#define BDD_NODE_H
 // Node of the BDD
 typedef struct BDD_node {
     struct BDD_node* low;          // pointer when variable == 0
     struct BDD_node* high;         // pointer when variable == 1
-    int var_index;                 // index of the variable (0, 1, ..., N-1)
+    struct BDD_node* prev;         // pointer to previous node == 1
+    char var;                      // variable name {A, B, C, ...}
     char value;                    // '0', '1', or '-' if not a terminal node
 } BDD_node;
+#endif // BDD_NODE_H
 
 // Main BDD structure
 typedef struct BDD {
@@ -221,6 +227,71 @@ void sortTerms(TermManager tm, char* order){
     sortTermsBySize(tm);
 }
 
+void freeTermManager(TermManager tm){
+    free(tm.terms);
+}
+
+char* getFunc(TermManager tm){ // important to free after using this func
+    if (tm.terms == NULL)
+        return NULL;
+    int stringSize = 1;
+    for (int i = 0; i < tm.countOfTerms; i++){
+        stringSize+= strlen(tm.terms[i]);
+    }
+
+    stringSize += tm.countOfTerms-1; // add space for'+'
+
+    char* str = calloc(stringSize, sizeof(char));
+
+    for (int i = 0; i < tm.countOfTerms; i++){
+        if (i != 0){
+            str[strlen(str)+1] = '\0';
+            str[strlen(str)] = '+';
+        }
+        strcat(str, tm.terms[i]);
+    }
+    return str;
+}
+
+TermManager copyTermManager(TermManager tm){  // get full copy
+    char **terms;
+    terms = calloc(tm.countOfTerms, sizeof(char *));
+    for (int i = 0; i < tm.countOfTerms; i++){
+        terms[i] = calloc(strlen(tm.terms[i])+1, sizeof(char));
+        strcpy(terms[i], tm.terms[i]);
+    }
+    tm.terms = terms;
+    return tm;
+}
+
+TermManager getSubTerms (TermManager tm, char var){ // change the original tm
+    for (int i = 0; i < tm.countOfTerms; i++){
+        if (tm.terms[i][0] == var){
+            strcpy(tm.terms[i], tm.terms[i] + 1);
+        } else if (tm.terms[i][0] == '!'){
+            strcpy(tm.terms[i], tm.terms[i] + 2);
+        }
+        if(tm.terms[i][0] == '\0'){     //delete the cleaned node;
+            free(tm.terms[i]);
+            for (int j = i; j < tm.countOfTerms-1; j++){
+                tm.terms[j] = tm.terms[j+1];
+            }
+            tm.countOfTerms--;
+        }
+    }
+    return tm;
+}
+
+int calculateSize(BDD_node* root){
+    if (root == NULL)
+        return 0;
+    return 1 + calculateSize(BDD_node* root->high) + calculateSize(BDD_node* root->low);
+}
+
+BDD_node* initNodes(BDD_node* node, TermManager tm, HashTable* hashTable, char* order){
+
+}
+
 BDD *BDD_create (char* func, char* order){
     BDD* bdd = calloc(1, sizeof(BDD));
 
@@ -229,6 +300,13 @@ BDD *BDD_create (char* func, char* order){
     TermManager tm = getTerms(func);
     sortTerms(tm, order);
 
+    HashTable* hashTable = getHashTable(50, 0.75f);
+
+    bdd->root = initNodes(NULL, tm, hashTable, order);
+    bdd->size = calculateSize(bdd->root);
+
+    freeTermManager(tm);
+    FreeHashTable(hashTable);
     return bdd;
 }
 

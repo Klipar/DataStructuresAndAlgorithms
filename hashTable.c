@@ -12,7 +12,8 @@
 typedef struct BDD_node {
     struct BDD_node* low;          // pointer when variable == 0
     struct BDD_node* high;         // pointer when variable == 1
-    int var_index;                 // index of the variable (0, 1, ..., N-1)
+    struct BDD_node* prev;         // pointer to previous node == 1
+    char var;                      // variable name {A, B, C, ...}
     char value;                    // '0', '1', or '-' if not a terminal node
 } BDD_node;
 #endif // BDD_NODE_H
