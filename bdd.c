@@ -11,6 +11,9 @@
 *   '!' = NOT
 */
 
+#define HIGHT true
+#define LOW false
+
 // Main BDD structure
 typedef struct BDD {
     BDD_node* root;                // pointer to the root node
@@ -23,8 +26,26 @@ void BDD_free(BDD *bdd){
     free(bdd);
 }
 
+BDD_node* getNode(BDD_node* prev){
+    BDD_node *node = calloc(1, sizeof(BDD_node));
+
+    node->prev = prev;
+    return node;
+}
+
 BDD_node* initNodes(BDD_node* node, TermManager tm, HashTable* hashTable){
-    return NULL;
+    if (node == NULL)
+        node = getNode(NULL);
+
+    deleteUnusedOrderVariables(tm);     // cleaning order string from unused variables
+    node->var = tm.order[0];
+    TermManager tmLow = extractSubFunction(tm, LOW);
+    TermManager tmHight = extractSubFunction(tm, HIGHT);
+    printf("%s\n", getFunc(tm));
+    printf("%s\n", getFunc(tmLow));
+    printf("%s\n", getFunc(tmHight));
+
+    return node;
 }
 
 int calculateBDDSize(BDD_node* root){
@@ -34,11 +55,10 @@ int calculateBDDSize(BDD_node* root){
 }
 
 BDD *BDD_create (char* func, char* order){
-    BDD* bdd = calloc(1, sizeof(BDD));
-
     TermManager tm = getAndPrepairTerms(func, order);
     HashTable* hashTable = getHashTable(50, 0.75f);
 
+    BDD* bdd = calloc(1, sizeof(BDD));
     bdd->root = initNodes(NULL, tm, hashTable);
     bdd->size = calculateBDDSize(bdd->root);
 

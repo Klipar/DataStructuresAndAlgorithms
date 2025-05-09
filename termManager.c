@@ -1,7 +1,7 @@
 
 #ifndef TermManagerH
 #define TermManagerH
-// Term manager for working with terms
+// Term manager for working with terms (tm)
 typedef struct TermManager {
     char **terms;
     int countOfTerms;
@@ -236,11 +236,15 @@ char* getFunc(TermManager tm){ // important to free after using this func
 
 TermManager copyTermManager(TermManager tm){  // get full copy
     char **terms;
+    char *order;
     terms = calloc(tm.countOfTerms, sizeof(char *));
     for (int i = 0; i < tm.countOfTerms; i++){
         terms[i] = calloc(strlen(tm.terms[i])+1, sizeof(char));
         strcpy(terms[i], tm.terms[i]);
     }
+    order = calloc(strlen(tm.order)+1, sizeof(char));
+    strcpy(order, tm.order);
+    tm.order = order;
     tm.terms = terms;
     return tm;
 }
@@ -268,5 +272,68 @@ TermManager getAndPrepairTerms(char* func, char* order){
     tm.order = calloc(strlen(order)+1, sizeof(char));
     strcpy(tm.order, order);
     sortTerms(tm);
+    return tm;
+}
+
+TermManager getTerminalTM(bool terminalValue){
+    if (terminalValue == true){
+        return getAndPrepairTerms("1", "1");
+    } else {
+        return getAndPrepairTerms("0", "0");
+    }
+}
+
+void deleteUnusedOrderVariables(TermManager tm){
+    char * func = getFunc(tm);
+    for (int i = 0; i < strlen(tm.order); i++){
+        if (strchr(func, tm.order[i]) == NULL){
+            for (int j = i; j < strlen(tm.order)-1; j++){
+                tm.order[j] = tm.order[j+1];
+            }
+        }
+    }
+    free(func);
+}
+
+/*
+* extract sub func.
+* use parameter signal tu define side. signal == {(0,low), (1,hight)}
+* return new TermManager with extracted function.
+* use first variable in order arr
+*/
+TermManager extractSubFunction(TermManager tmInput, bool signal){
+    TermManager tm = copyTermManager(tmInput);
+    for (int i = 0; i < tm.countOfTerms; i++){
+        bool localSignal = signal;
+        if (tm.terms[i][0] == '!') // invert behaviour according to negation ('!')
+            localSignal = !localSignal;
+
+        if (tm.terms[i][0] == tm.order[0] ||
+           (tm.terms[i][0] == '!' && tm.terms[i][1] == tm.order[0])){ // term contain searching variable
+
+            if (tm.terms[i][0] == '!'){ // deleting variable in term
+                strcpy(tm.terms[i], tm.terms[i]+2); // shift on 2 position (!A)
+            } else {
+                strcpy(tm.terms[i], tm.terms[i]+1); // shift on 1 position (A)
+            }
+
+            if (strlen(tm.terms[i]) == 0){ // if term is empty - returning localSignal
+                freeTermManager(tm); // clear unused result
+                return getTerminalTM(localSignal); // returning terminal func (must be processed in initNodes func to go to terminal node)
+            } else if (localSignal == false){
+                free(tm.terms[i]);
+                for (int j = i; j < tm.countOfTerms-1; j++){
+                    tm.terms[j] = tm.terms[j+1];
+                }
+                tm.countOfTerms--;
+                i--;
+            }
+        }
+    }
+    if (tm.countOfTerms == 0){
+        freeTermManager(tm);
+        return getTerminalTM(false); // we deleted all terms and du not got hight terminal signal
+    }
+    strcpy(tm.order, tm.order+1); // deleting used order variable
     return tm;
 }
