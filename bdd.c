@@ -104,13 +104,28 @@ BDD *BDD_create (char* func, char* order){
     return bdd;
 }
 
+char BDD_use (BDD *bdd, char* inp){
+    BDD_node* current = bdd->root;
+    while (current->high != NULL){
+        if (strlen(inp)-1 < current->var-'A'){
+            return -1; // not enough variables in input
+        }
+        if (inp[current->var-'A'] == '1'){
+            current = current->high;
+        }else{
+            current = current->low;
+        }
+    }
+    return current->value;
+}
+
 int main() {
 
     BooleanFunctionTester bf = getTestsData(15);
 
     char func[] = "AB+AC+BC";
     BDD * bdd = BDD_create(func, "ABC");
-
+    char out = BDD_use(bdd, "0");
 
     return 0;
 }
