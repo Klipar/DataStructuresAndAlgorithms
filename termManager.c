@@ -71,7 +71,7 @@ void printTerms(TermManager tm){
 }
 
 TermManager getTerms (char* func){
-    TermManager tm = {NULL, 1};
+    TermManager tm = {NULL, 1, NULL};
 
     for (int i = 0; i < strlen(func); i++) {
         if (func[i] == '+'){
@@ -87,10 +87,10 @@ TermManager getTerms (char* func){
             if (func[sizeOfTerm+i] == '+')
                 break;
         }
-        tm.terms[currentTerm] = malloc(sizeOfTerm*sizeof(char));
+        tm.terms[currentTerm] = calloc(sizeOfTerm+1,sizeof(char));
         for (int k = 0; k <= sizeOfTerm; k++){
             if (func[k+i] != '+')
-            tm.terms[currentTerm][k] = func[k+i];
+                tm.terms[currentTerm][k] = func[k+i];
         }
         i += sizeOfTerm;
         currentTerm++;

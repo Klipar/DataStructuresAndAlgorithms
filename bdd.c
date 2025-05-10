@@ -3,13 +3,13 @@
 #include <string.h>
 
 #include "hashTable.c"
-#include "termManager.c"
 /*
 *   Func forman = AB!C + !ABC
 *   '+' = OR
 *   ''  = AND
 *   '!' = NOT
 */
+#include "testGenerator.c"
 
 #define HIGHT true
 #define LOW false
@@ -105,7 +105,10 @@ BDD *BDD_create (char* func, char* order){
 }
 
 int main() {
-    char func[] = "BAC+C!A+A!BC+!C!B+B!A+A!B+ABC+CBA";
+
+    BooleanFunctionTester bf = getTestsData(15);
+
+    char func[] = "AB+AC+BC";
     BDD * bdd = BDD_create(func, "ABC");
 
 
