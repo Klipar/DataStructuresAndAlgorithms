@@ -46,7 +46,7 @@ BDD_node* initNodes(BDD_node* node, TermManager tm, HashTable** hashTable){
     node->var = tm.order[0];
     TermManager tmLow = extractSubFunction(tm, LOW);
     TermManager tmHight = extractSubFunction(tm, HIGHT);
-    printf("%s\n", getFunc(tm));//
+    // printf("%s\n", getFunc(tm));//
     char* funcLow = getFunc(tmLow);
     char* funcHight = getFunc(tmHight);
 
@@ -121,11 +121,16 @@ char BDD_use (BDD *bdd, char* inp){
 
 int main() {
 
-    BooleanFunctionTester bf = getTestsData(15);
+    BooleanFunctionTester bf = getTestsData(20);
 
-    char func[] = "AB+AC+BC";
-    BDD * bdd = BDD_create(func, "ABC");
-    char out = BDD_use(bdd, "0");
+    BDD * bdd = BDD_create(bf.func, bf.baseOrder);
+    for (unsigned int i = 0; i < (1u << bf.countOfVariables); i++){
+        if (BDD_use(bdd, bf.tests[i].input) != bf.tests[i].output)
+            printf("FAIL ON TEST: func:\n%s\nwith input == %s\nexpected == %c\nreal == %c\n", bf.func, bf.tests[i].input, bf.tests[i].output, BDD_use(bdd, bf.tests[i].input));
+        else{
+            printf("success!!!!!\n");
+        }
+    }
 
     return 0;
 }
