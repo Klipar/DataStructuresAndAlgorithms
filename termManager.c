@@ -317,9 +317,9 @@ TermManager extractSubFunction(TermManager tmInput, bool signal){
                 strcpy(tm.terms[i], tm.terms[i]+1); // shift on 1 position (A)
             }
 
-            if (strlen(tm.terms[i]) == 0){ // if term is empty - returning localSignal
+            if (strlen(tm.terms[i]) == 0 && localSignal == true){ // if term is empty - returning localSignal
                 freeTermManager(tm); // clear unused result
-                return getTerminalTM(localSignal); // returning terminal func (must be processed in initNodes func to go to terminal node)
+                return getTerminalTM(true); // returning terminal func (must be processed in initNodes func to go to terminal node)
             } else if (localSignal == false){
                 free(tm.terms[i]);
                 for (int j = i; j < tm.countOfTerms-1; j++){
