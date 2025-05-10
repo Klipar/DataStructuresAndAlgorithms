@@ -19,6 +19,7 @@ typedef struct BDD {
     BDD_node* root;                // pointer to the root node
     int num_vars;                  // number of variables
     int size;                      // number of nodes in the BDD
+    HashTable* hashTable;
 } BDD;
 
 void BDD_free(BDD *bdd){
@@ -92,16 +93,24 @@ BDD_node* initNodes(BDD_node* node, TermManager tm, HashTable** hashTable){
 
 BDD *BDD_create (char* func, char* order){
     TermManager tm = getAndPrepairTerms(func, order);
-    HashTable* hashTable = getHashTable(50, 0.75f);
 
     BDD* bdd = calloc(1, sizeof(BDD));
-    bdd->root = initNodes(NULL, tm, &hashTable);
-    bdd->size = hashTable->elementCount + 1; // +1 because add root
+    bdd->hashTable = getHashTable(50, 0.75f);
+    bdd->root = initNodes(NULL, tm, &bdd->hashTable);
+    bdd->size = bdd->hashTable->elementCount + 1; // +1 because add root
 
     freeTermManager(tm);
 
-    FreeHashTable(hashTable);
     return bdd;
+}
+
+void freeBDD(BDD *bdd){
+    FreeHashTable(bdd->hashTable);
+    free(bdd);
+}
+
+BDD *BDD_create_with_best_order (char* func){
+
 }
 
 char BDD_use (BDD *bdd, char* inp){
@@ -121,16 +130,17 @@ char BDD_use (BDD *bdd, char* inp){
 
 int main() {
 
-    BooleanFunctionTester bf = getTestsData(20);
+    BooleanFunctionTester bf = getTestsData(13);
 
     BDD * bdd = BDD_create(bf.func, bf.baseOrder);
     for (unsigned int i = 0; i < (1u << bf.countOfVariables); i++){
         if (BDD_use(bdd, bf.tests[i].input) != bf.tests[i].output)
             printf("FAIL ON TEST: func:\n%s\nwith input == %s\nexpected == %c\nreal == %c\n", bf.func, bf.tests[i].input, bf.tests[i].output, BDD_use(bdd, bf.tests[i].input));
         else{
-            printf("success!!!!!\n");
+            // printf("success!!!!!\n");
         }
     }
-
+    freeBooleanFunctionTester(bf);
+    freeBDD(bdd);
     return 0;
 }

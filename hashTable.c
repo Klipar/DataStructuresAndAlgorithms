@@ -72,6 +72,7 @@ void FreeLinkedList(Data* root){
         return;
 
     FreeLinkedList(root->next);
+    free(root->link);
     free(root->func);
     free(root);
 }

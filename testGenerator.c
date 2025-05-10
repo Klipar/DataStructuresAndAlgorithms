@@ -117,3 +117,12 @@ BooleanFunctionTester getTestsData(int size){
     bf = generateTests(bf);
     return bf;
 }
+
+void freeBooleanFunctionTester(BooleanFunctionTester bf){
+    if (bf.func != NULL)
+        free(bf.func);
+    if (bf.baseOrder != NULL)
+        free(bf.baseOrder);
+    if (bf.tests != NULL)
+        free(bf.tests);
+}
