@@ -90,21 +90,16 @@ BDD_node* initNodes(BDD_node* node, TermManager tm, HashTable** hashTable){
     return node;
 }
 
-int calculateBDDSize(BDD_node* root){
-    if (root == NULL)
-        return 0;
-    return 1 + calculateBDDSize(root->high) + calculateBDDSize(root->low);
-}
-
 BDD *BDD_create (char* func, char* order){
     TermManager tm = getAndPrepairTerms(func, order);
     HashTable* hashTable = getHashTable(50, 0.75f);
 
     BDD* bdd = calloc(1, sizeof(BDD));
     bdd->root = initNodes(NULL, tm, &hashTable);
-    bdd->size = calculateBDDSize(bdd->root);
+    bdd->size = hashTable->elementCount + 1; // +1 because add root
 
     freeTermManager(tm);
+
     FreeHashTable(hashTable);
     return bdd;
 }
