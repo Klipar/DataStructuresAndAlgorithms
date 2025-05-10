@@ -312,9 +312,16 @@ TermManager extractSubFunction(TermManager tmInput, bool signal){
            (tm.terms[i][0] == '!' && tm.terms[i][1] == tm.order[0])){ // term contain searching variable
 
             if (tm.terms[i][0] == '!'){ // deleting variable in term
-                strcpy(tm.terms[i], tm.terms[i]+2); // shift on 2 position (!A)
+                size_t len = strlen(tm.terms[i]); // shift on 2 position (!A)
+                if (len >= 2) {
+                    memmove(tm.terms[i], tm.terms[i] + 2, len - 1);
+                    tm.terms[i][len - 2] = '\0';
+                } else {
+                    tm.terms[i][0] = '\0';
+                }
+
             } else {
-                strcpy(tm.terms[i], tm.terms[i]+1); // shift on 1 position (A)
+                memmove(tm.terms[i], tm.terms[i]+1, strlen(tm.terms[i])); // shift on 1 position (A)
             }
 
             if (strlen(tm.terms[i]) == 0 && localSignal == true){ // if term is empty - returning localSignal
@@ -334,6 +341,6 @@ TermManager extractSubFunction(TermManager tmInput, bool signal){
         freeTermManager(tm);
         return getTerminalTM(false); // we deleted all terms and du not got hight terminal signal
     }
-    strcpy(tm.order, tm.order+1); // deleting used order variable
+    memmove(tm.order, tm.order+1, strlen(tm.order)); // deleting used order variable
     return tm;
 }
