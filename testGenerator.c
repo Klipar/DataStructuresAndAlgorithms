@@ -95,9 +95,11 @@ char getFuncResult(char* func, char* order, char* inp){
 
     for (int i = 0; i < tm.countOfTerms; i++){
         if (tm.terms[i][0] != '\0'){
+            freeTermManager(tm);
             return '1';
         }
     }
+    freeTermManager(tm);
     return '0';
 }
 
@@ -123,6 +125,9 @@ void freeBooleanFunctionTester(BooleanFunctionTester bf){
         free(bf.func);
     if (bf.baseOrder != NULL)
         free(bf.baseOrder);
+    for (unsigned int i = 0; i < (1u << bf.countOfVariables); i++){
+        free(bf.tests[i].input);
+    }
     if (bf.tests != NULL)
         free(bf.tests);
 }

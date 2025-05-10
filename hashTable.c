@@ -83,7 +83,8 @@ void FreeHashTable(HashTable* hashTable){
     } else{
         for (int i = 0; i < hashTable->size; i++)
             FreeLinkedList(hashTable->arr[i]);
-        free (hashTable);
+        free(hashTable->arr);
+        free(hashTable);
     }
 }
 
@@ -145,7 +146,7 @@ HashTable* HashTableInsert (HashTable* hashTable, Data* data){
                 element = next;
             }
         }
-
+        free(hashTable->arr);
         free(hashTable);        // free only hashTable because all data still important
         hashTable = newTable;
     }

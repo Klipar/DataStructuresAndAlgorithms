@@ -34,9 +34,8 @@ BDD_node* getNode(BDD_node* prev){
     return node;
 }
 
-BDD_node* initNodes(BDD_node* node, TermManager tm, HashTable** hashTable){
-    if (node == NULL)
-        node = getNode(NULL);
+BDD_node* initNodes(BDD_node* prev, TermManager tm, HashTable** hashTable){
+    BDD_node* node = getNode(prev);
 
     if (tm.terms[0][0] == '1' || tm.terms[0][0] == '0'){
         node->value = tm.terms[0][0];
@@ -51,13 +50,36 @@ BDD_node* initNodes(BDD_node* node, TermManager tm, HashTable** hashTable){
     char* funcLow = getFunc(tmLow);
     char* funcHight = getFunc(tmHight);
 
+    TermManager tm1 = getAndPrepairTerms(funcLow, tmLow.order);
+    TermManager tm2 = getAndPrepairTerms(funcHight, tmHight.order);
+    char* tm1FuncLow = getFunc(tm1);
+    char* tm2FuncHight = getFunc(tm2);
+    freeTermManager(tm1);
+    freeTermManager(tm2);
+
+    ////// precess S reduction type //////
+    if (strcmp(tm1FuncLow, tm2FuncHight) == 0){
+        // node->high->prev = node->prev;
+        BDD_node* tmp = initNodes(node->prev, tmLow, hashTable);
+        free(node);
+        freeTermManager(tmLow);
+        freeTermManager(tmHight);
+        free(funcLow);
+        free(funcHight);
+        free(tm1FuncLow);
+        free(tm2FuncHight);
+        return tmp;
+    }
+    free(tm1FuncLow);
+    free(tm2FuncHight);
+
     ////// precess I reduction type //////
     ////// for low //////
     Data* dataLow = SearchHashTable(*hashTable, funcLow);
     if (dataLow == NULL){
         dataLow = calloc(1, sizeof(Data));
         dataLow->func = funcLow;
-        node->low = initNodes(getNode(node), tmLow, hashTable);
+        node->low = initNodes(node, tmLow, hashTable);
         dataLow->link = node->low;
         *hashTable = HashTableInsert(*hashTable, dataLow);
     } else {
@@ -69,7 +91,7 @@ BDD_node* initNodes(BDD_node* node, TermManager tm, HashTable** hashTable){
     if (dataHight == NULL){
         dataHight = calloc(1, sizeof(Data));
         dataHight->func = funcHight;
-        node->high = initNodes(getNode(node), tmHight, hashTable);
+        node->high = initNodes(node, tmHight, hashTable);
         dataHight->link = node->high;
         *hashTable = HashTableInsert(*hashTable, dataHight);
     } else {
@@ -79,14 +101,6 @@ BDD_node* initNodes(BDD_node* node, TermManager tm, HashTable** hashTable){
 
     freeTermManager(tmLow);
     freeTermManager(tmHight);
-
-    ////// precess S reduction type //////
-    if (node->high == node->low){
-        node->high->prev = node->prev;
-        BDD_node* tmp = node->high;
-        free(node);
-        return tmp;
-    }
 
     return node;
 }
@@ -105,6 +119,7 @@ BDD *BDD_create (char* func, char* order){
 }
 
 void freeBDD(BDD *bdd){
+    free(bdd->root);
     FreeHashTable(bdd->hashTable);
     free(bdd);
 }
