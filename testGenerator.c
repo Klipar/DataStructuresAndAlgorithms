@@ -16,21 +16,18 @@ typedef struct BooleanFunctionTester {
     Test* tests;
 } BooleanFunctionTester;
 
-BooleanFunctionTester getTestFunc(int size){
+BooleanFunctionTester getTestFunc(int maxSize){
     BooleanFunctionTester bf = {};
-    bf.countOfVariables = size;
-    bf.baseOrder = calloc(size+1, sizeof(char));
-    for (int i = 0; i < size; i++)
+    bf.baseOrder = calloc(maxSize+1, sizeof(char));
+    for (int i = 0; i < maxSize; i++)
         bf.baseOrder[i]=i+'A';
 
-    srand(time(NULL));
-
     TermManager tm = {};
-    tm.countOfTerms = (rand() % size)+1;
+    tm.countOfTerms = (rand() % maxSize)+1;
     tm.terms = calloc(tm.countOfTerms, sizeof(char*));
     for (int i = 0; i < tm.countOfTerms; i++){
-        tm.terms[i] = calloc(size*2+1, sizeof(char));
-        for (int j = 0; j < size; j++){
+        tm.terms[i] = calloc(maxSize*2+1, sizeof(char));
+        for (int j = 0; j < maxSize; j++){
             if ((rand() % 100)+1 > 50){
                 char addVariable[3] = {0};
                 if ((rand() % 100)+1 > 50){
@@ -51,11 +48,17 @@ BooleanFunctionTester getTestFunc(int size){
     freeTermManager(tm);
     for (int i = 0; i < strlen(bf.func)-1; i++){
         if (bf.func[i] == '+' && bf.func[i+1] == '+'){
-            strcpy(bf.func+i, bf.func+i+1);
-            i = -1;
+            memmove(&bf.func[i + 1], &bf.func[i + 2], strlen(bf.func) - (i + 1));
             bf.countOfTerms--;
+            i--;
         }
     }
+
+    char usedVariables[27] = {};
+    for (int i = 0; i < strlen(bf.func); i++)
+        if (strchr(usedVariables, bf.func[i]) == NULL && bf.func[i] != '!' && bf.func[i] != '+')
+            *strchr(usedVariables, '\0') = bf.func[i];
+    bf.countOfVariables = strlen(usedVariables);
     return bf;
 }
 
@@ -114,12 +117,6 @@ BooleanFunctionTester generateTests(BooleanFunctionTester bf){
     return bf;
 }
 
-BooleanFunctionTester getTestsData(int size){
-    BooleanFunctionTester bf = getTestFunc(size);
-    bf = generateTests(bf);
-    return bf;
-}
-
 void freeBooleanFunctionTester(BooleanFunctionTester bf){
     if (bf.func != NULL)
         free(bf.func);
@@ -130,4 +127,16 @@ void freeBooleanFunctionTester(BooleanFunctionTester bf){
     }
     if (bf.tests != NULL)
         free(bf.tests);
+}
+
+BooleanFunctionTester getTestsData(int size){
+    srand(time(NULL));
+    BooleanFunctionTester bf = getTestFunc(size);
+    while (bf.countOfVariables != size || bf.func[0] == '\0' || bf.func[strlen(bf.func)-1] == '+') {
+        free(bf.func);
+        free(bf.baseOrder);
+        bf = getTestFunc(size);    // regenerate func if count of variables is wrong
+    }
+    bf = generateTests(bf);
+    return bf;
 }

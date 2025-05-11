@@ -112,7 +112,7 @@ BDD *BDD_create (char* func, char* order){
     bdd->hashTable = getHashTable(50, 0.75f);
     bdd->root = initNodes(NULL, tm, &bdd->hashTable);
     bdd->size = bdd->hashTable->elementCount + 1; // +1 because add root
-
+    bdd->num_vars = strlen(order);
     freeTermManager(tm);
 
     return bdd;
@@ -159,7 +159,6 @@ BDD *BDD_create_with_best_order (char* func){
             *strchr(baseOrder, '\0') = func[i];
 
     BDD *bddOutput = BDD_create(func, baseOrder);
-    printf("%i\n", bddOutput->size);
     char** orders = getOrders(baseOrder);
 
     for (int i = 0; i < strlen(baseOrder); i++){
@@ -175,7 +174,6 @@ BDD *BDD_create_with_best_order (char* func){
     for (int i = 0; i < strlen(baseOrder); i++)
         free(orders[i]);
     free(orders);
-    printf("%i\n", bddOutput->size);
     return bddOutput;
 }
 
@@ -192,20 +190,4 @@ char BDD_use (BDD *bdd, char* inp){
         }
     }
     return current->value;
-}
-
-int main() {
-    BooleanFunctionTester bf = getTestsData(13);
-
-    BDD * bdd = BDD_create_with_best_order(bf.func);
-    for (unsigned int i = 0; i < (1u << bf.countOfVariables); i++){
-        if (BDD_use(bdd, bf.tests[i].input) != bf.tests[i].output)
-            printf("FAIL ON TEST: func:\n%s\nwith input == %s\nexpected == %c\nreal == %c\n", bf.func, bf.tests[i].input, bf.tests[i].output, BDD_use(bdd, bf.tests[i].input));
-        else{
-            // printf("success!!!!!\n");
-        }
-    }
-    freeBooleanFunctionTester(bf);
-    freeBDD(bdd);
-    return 0;
 }

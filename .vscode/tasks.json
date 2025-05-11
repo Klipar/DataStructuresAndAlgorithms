@@ -7,9 +7,9 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "bdd.c",
+                "tester.c",
                 "-o",
-                "${fileDirname}/bdd"
+                "${fileDirname}/tester"
             ],
             "options": {
                 "cwd": "${fileDirname}"
