@@ -20,7 +20,7 @@ void swapVariable(char* string, int i){ // index of first variable. swap only va
         return;
 
     if (strlen(string) < i+1){
-        perror("Error while swapping variables!\n");
+        printf("Error while swapping variables in string: %s\n on position %i and %i", string, i, i+1);
         return;
     }
 

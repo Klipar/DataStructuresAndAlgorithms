@@ -22,11 +22,6 @@ typedef struct BDD {
     HashTable* hashTable;
 } BDD;
 
-void BDD_free(BDD *bdd){
-    // TODO: implement free of nodes
-    free(bdd);
-}
-
 BDD_node* getNode(BDD_node* prev){
     BDD_node *node = calloc(1, sizeof(BDD_node));
 

@@ -6,7 +6,7 @@
 
 ////// testing settings //////
 #define MIN_VARIABLES 4
-#define MAX_VARIABLES 10
+#define MAX_VARIABLES 20
 #define CUNT_OF_ITERATIONS 100
 //////////////////////////////
 
