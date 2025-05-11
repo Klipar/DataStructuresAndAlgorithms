@@ -124,8 +124,59 @@ void freeBDD(BDD *bdd){
     free(bdd);
 }
 
-BDD *BDD_create_with_best_order (char* func){
+void swap(char *x, char *y) {
+    char temp = *x;
+    *x = *y;
+    *y = temp;
+}
 
+char** getOrders(char *order) {
+    int n = strlen(order);
+    int *index = calloc(n, sizeof(int));
+    char** result = calloc(strlen(order), sizeof(char*));
+
+    for(int i = 0, j = 0; i < n && j < strlen(order); i++){
+        if (index[i] < i) {
+            swap(&order[i % 2 == 0 ? 0 : index[i]], &order[i]);
+            result[j] = calloc(strlen(order)+1, sizeof(char));
+            strcpy(result[j], order);
+            index[i]++;
+            i = -1;
+            j++;
+        } else
+            index[i] = 0;
+    }
+
+    free(index);
+
+    return result;
+}
+
+BDD *BDD_create_with_best_order (char* func){
+    char baseOrder[27] = {};
+    for (int i = 0; i < strlen(func); i++)
+        if (strchr(baseOrder, func[i]) == NULL && func[i] != '!' && func[i] != '+')
+            *strchr(baseOrder, '\0') = func[i];
+
+    BDD *bddOutput = BDD_create(func, baseOrder);
+    printf("%i\n", bddOutput->size);
+    char** orders = getOrders(baseOrder);
+
+    for (int i = 0; i < strlen(baseOrder); i++){
+        BDD *newOutput = BDD_create(func, orders[i]);
+        if (newOutput->size < bddOutput->size){
+            freeBDD(bddOutput);
+            bddOutput = newOutput;
+        } else {
+            freeBDD(newOutput);
+        }
+    }
+
+    for (int i = 0; i < strlen(baseOrder); i++)
+        free(orders[i]);
+    free(orders);
+    printf("%i\n", bddOutput->size);
+    return bddOutput;
 }
 
 char BDD_use (BDD *bdd, char* inp){
@@ -144,10 +195,9 @@ char BDD_use (BDD *bdd, char* inp){
 }
 
 int main() {
-
     BooleanFunctionTester bf = getTestsData(13);
 
-    BDD * bdd = BDD_create(bf.func, bf.baseOrder);
+    BDD * bdd = BDD_create_with_best_order(bf.func);
     for (unsigned int i = 0; i < (1u << bf.countOfVariables); i++){
         if (BDD_use(bdd, bf.tests[i].input) != bf.tests[i].output)
             printf("FAIL ON TEST: func:\n%s\nwith input == %s\nexpected == %c\nreal == %c\n", bf.func, bf.tests[i].input, bf.tests[i].output, BDD_use(bdd, bf.tests[i].input));
