@@ -49,6 +49,7 @@ unsigned long int getSize(BDD *bdd){
 }
 
 int main() {
+    srand(time(NULL));
     for (int numVariables = MIN_VARIABLES; numVariables < MAX_VARIABLES; numVariables++){
         TestAlgorithms test = {};
         printf("\n=======================================================\n");

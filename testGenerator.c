@@ -123,7 +123,6 @@ void freeBooleanFunctionTester(BooleanFunctionTester bf){
 }
 
 BooleanFunctionTester getTestsData(int size){
-    srand(time(NULL));
     BooleanFunctionTester bf = getTestFunc(size);
     while (bf.countOfVariables != size || bf.func[0] == '\0' || bf.func[strlen(bf.func)-1] == '+') {
         free(bf.func);
