@@ -27,7 +27,19 @@
         "typeinfo": "c",
         "string.h": "c",
         "cstdio": "c",
-        "algorithm": "c"
+        "algorithm": "c",
+        "atomic": "c",
+        "charconv": "c",
+        "complex": "c",
+        "forward_list": "c",
+        "list": "c",
+        "vector": "c",
+        "optional": "c",
+        "fstream": "c",
+        "istream": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "variant": "c"
     },
     "C_Cpp.errorSquiggles": "disabled",
     "cSpell.words": [

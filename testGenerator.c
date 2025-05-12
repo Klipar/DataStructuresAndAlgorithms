@@ -46,13 +46,6 @@ BooleanFunctionTester getTestFunc(int maxSize){
     bf.countOfTerms = tm.countOfTerms;
     bf.func = getFunc(tm);
     freeTermManager(tm);
-    for (int i = 0; i < strlen(bf.func)-1; i++){
-        if (bf.func[i] == '+' && bf.func[i+1] == '+'){
-            memmove(&bf.func[i + 1], &bf.func[i + 2], strlen(bf.func) - (i + 1));
-            bf.countOfTerms--;
-            i--;
-        }
-    }
 
     char usedVariables[27] = {};
     for (int i = 0; i < strlen(bf.func); i++)

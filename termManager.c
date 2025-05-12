@@ -20,7 +20,7 @@ void swapVariable(char* string, int i){ // index of first variable. swap only va
         return;
 
     if (strlen(string) < i+1){
-        printf("Error while swapping variables in string: %s\n on position %i and %i", string, i, i+1);
+        printf("Error while swapping variables in string: \"%s\" on position %i and %i\n", string, i, i+1);
         return;
     }
 
@@ -49,6 +49,8 @@ void swapVariable(char* string, int i){ // index of first variable. swap only va
 }
 
 void sortOneTerm(char* func, char* order){
+    if (strlen(func) == 0)
+        return;
     for (int i = 0; i < strlen(func)-1; i++){ // pointer on func
         if (func[i] == '+' || func[i+1] == '+' || func[i] == '!') // we are in the middle between terms OR at !
             continue;
@@ -225,11 +227,13 @@ char* getFunc(TermManager tm){ // important to free after using this func
     char* str = calloc(stringSize, sizeof(char));
 
     for (int i = 0; i < tm.countOfTerms; i++){
-        if (i != 0){
-            str[strlen(str)+1] = '\0';
-            str[strlen(str)] = '+';
+        if (tm.terms[i][0] != '\0'){
+            if (i != 0 && str[0] != '\0'){
+                str[strlen(str)+1] = '\0';
+                str[strlen(str)] = '+';
+            }
+            strcat(str, tm.terms[i]);
         }
-        strcat(str, tm.terms[i]);
     }
     return str;
 }

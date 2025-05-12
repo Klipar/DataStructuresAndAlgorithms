@@ -156,7 +156,7 @@ BDD *BDD_create_with_best_order (char* func){
     BDD *bddOutput = BDD_create(func, baseOrder);
     char** orders = getOrders(baseOrder);
 
-    for (int i = 0; i < strlen(baseOrder); i++){
+    for (int i = 0; i < strlen(baseOrder) && orders[i] != NULL; i++){
         BDD *newOutput = BDD_create(func, orders[i]);
         if (newOutput->size < bddOutput->size){
             freeBDD(bddOutput);
