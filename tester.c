@@ -7,7 +7,7 @@
 ////// testing settings //////
 #define MIN_VARIABLES 4
 #define MAX_VARIABLES 20
-#define CUNT_OF_ITERATIONS 100
+#define COUNT_OF_ITERATIONS 100
 //////////////////////////////
 
 typedef struct TestAlgorithms {
@@ -21,12 +21,12 @@ typedef struct TestAlgorithms {
 
 void printTestesData (TestAlgorithms test, int numVariables){
     printf("\nResults:\n");
-    printf("Average creation time with regular order (ms): %.4f\n", ((double)test.BDD_create_time / CLOCKS_PER_SEC * 1000.0)/CUNT_OF_ITERATIONS);
-    printf("Average creation time with best order (ms)   : %.4f\n", ((double)test.BDD_create_with_best_order_time / CLOCKS_PER_SEC * 1000.0)/CUNT_OF_ITERATIONS);
-    printf("Average use time (ms)                        : %.4f\n", ((double)test.BDD_use_time / CLOCKS_PER_SEC * 1000.0)/(CUNT_OF_ITERATIONS*(1u << numVariables)));
-    printf("Average memory usage (Kb)                    : %lu\n", (test.averageMemoryUsage/CUNT_OF_ITERATIONS)/1024);
-    printf("Average count of nodes with regular creation : %u\n", test.averageCountOfNodesInRegularCreation/CUNT_OF_ITERATIONS);
-    printf("Average count of nodes with best creation    : %u\n", test.averageCountOfNodesInRegularBestCreation/CUNT_OF_ITERATIONS);
+    printf("Average creation time with regular order (ms): %.4f\n", ((double)test.BDD_create_time / CLOCKS_PER_SEC * 1000.0)/COUNT_OF_ITERATIONS);
+    printf("Average creation time with best order (ms)   : %.4f\n", ((double)test.BDD_create_with_best_order_time / CLOCKS_PER_SEC * 1000.0)/COUNT_OF_ITERATIONS);
+    printf("Average use time (ms)                        : %.4f\n", ((double)test.BDD_use_time / CLOCKS_PER_SEC * 1000.0)/(COUNT_OF_ITERATIONS*(1u << numVariables)));
+    printf("Average memory usage (Kb)                    : %lu\n", (test.averageMemoryUsage/COUNT_OF_ITERATIONS)/1024);
+    printf("Average count of nodes with regular creation : %u\n", test.averageCountOfNodesInRegularCreation/COUNT_OF_ITERATIONS);
+    printf("Average count of nodes with best creation    : %u\n", test.averageCountOfNodesInRegularBestCreation/COUNT_OF_ITERATIONS);
 }
 
 unsigned long int getSize(BDD *bdd){
@@ -54,8 +54,8 @@ int main() {
         TestAlgorithms test = {};
         printf("\n=======================================================\n");
         printf("Testing bdd with %i variables\n", numVariables);
-        for (int iteration = 0; iteration < CUNT_OF_ITERATIONS; iteration++){
-            printf("\rPerform the test: %i/%i", iteration+1, CUNT_OF_ITERATIONS);
+        for (int iteration = 0; iteration < COUNT_OF_ITERATIONS; iteration++){
+            printf("\rPerform the test: %i/%i", iteration+1, COUNT_OF_ITERATIONS);
             char bddUseResult; // result of use func
             clock_t timestamp;
 
