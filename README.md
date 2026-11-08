@@ -4,3 +4,5 @@ Write a program that reads an increasing sequence of up to 50,000 rational numbe
 ## Generating prime numbers
 Write a program that reads two integers (0–1000000) defining an interval and outputs all prime numbers within that interval (inclusive), separated by a comma and a space.
 
+## Greatest common divisor
+Write a program that reads N pairs of natural numbers (each up to 18446744073709551615) and outputs the greatest common divisor for each pair, one result per line.

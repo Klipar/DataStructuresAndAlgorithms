@@ -8,8 +8,14 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
+                "-lm",
+                "-std=c90",
+                "-Wall",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "${fileDirname}/${fileBasenameNoExtension}",
+                "--pedantic",
+                "-Werror",
+                "-Wno-unused-result"
             ],
             "options": {
                 "cwd": "${fileDirname}"

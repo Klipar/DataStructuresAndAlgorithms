@@ -2,8 +2,24 @@
     "files.associations": {
         "chrono": "c",
         "functional": "c",
+        "random": "c",
+        "stdio.h": "c",
+        "math.h": "c",
+        "array": "c",
+        "hash_map": "c",
+        "bitset": "c",
+        "string_view": "c",
+        "format": "c",
+        "initializer_list": "c",
         "span": "c",
+        "valarray": "c",
+        "algorithm": "c",
+        "numbers": "c",
+        "string": "c",
         "sstream": "c",
-        "random": "c"
+        "type_traits": "c",
+        "cmath": "c",
+        "complex": "c",
+        "new": "c"
     }
 }
