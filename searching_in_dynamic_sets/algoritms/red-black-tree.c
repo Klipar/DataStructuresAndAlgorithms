@@ -1,0 +1,435 @@
+#include <stdlib.h>
+#include <stdio.h>
+
+enum Color {
+    RED,
+    BLACK
+};
+
+#if !defined(DATA)
+#define DATA
+typedef struct Data {
+    unsigned int ID;
+    char name [20];
+    char surname [20];
+} Data;
+#endif // DATA
+
+typedef struct RedBlackTree {
+    Data data;
+    enum Color color;
+    struct RedBlackTree* parent;
+    struct RedBlackTree* leftNode;
+    struct RedBlackTree* rightNode;
+} RedBlackTree;
+
+RedBlackTree* deleteCase1(RedBlackTree* brother);
+void  deleteCase2(RedBlackTree* brother);
+void  deleteCase3(RedBlackTree* brother);
+void  deleteCase4(RedBlackTree* brother);
+void  deleteCase5(RedBlackTree* brother);
+void  deleteCase6(RedBlackTree* brother);
+
+RedBlackTree* InitNode(Data data,  enum Color color, RedBlackTree* parent){
+    RedBlackTree* root = calloc(1, sizeof(RedBlackTree));
+    root->data = data;
+    root->color = color;
+    root->parent = parent;
+    return root;
+}
+
+void RotateLeft(RedBlackTree *root){
+    RedBlackTree *tmp = root->rightNode;
+
+    tmp->parent = root->parent;
+    if (root->parent != NULL) {
+        if (root->parent->leftNode==root)
+            root->parent->leftNode = tmp;
+        else
+            root->parent->rightNode = tmp;
+    }
+
+    root->rightNode = tmp->leftNode;
+    if (tmp->leftNode != NULL)
+        tmp->leftNode->parent = root;
+
+    root->parent = tmp;
+    tmp->leftNode = root;
+}
+
+void RotateRight(RedBlackTree *root){
+    RedBlackTree *tmp = root->leftNode;
+
+    tmp->parent = root->parent;
+    if (root->parent != NULL) {
+        if (root->parent->leftNode==root)
+            root->parent->leftNode = tmp;
+        else
+            root->parent->rightNode = tmp;
+    }
+
+    root->leftNode = tmp->rightNode;
+    if (tmp->rightNode != NULL)
+        tmp->rightNode->parent = root;
+
+    root->parent = tmp;
+    tmp->rightNode = root;
+}
+
+void RotateLeftWithRepainting(RedBlackTree* root){
+    if (root->parent != NULL){
+        RedBlackTree* tmp = root->parent;
+        root->parent = root->parent->parent;
+        if (root->parent != NULL){
+            if (root->parent->leftNode == tmp){
+                root->parent->leftNode = root;
+            } else if (root->parent->rightNode == tmp){
+                root->parent->rightNode = root;
+            }
+        }
+        tmp->rightNode = root->leftNode;
+        if (root->leftNode != NULL)
+            root->leftNode->parent = tmp;
+        root->leftNode = tmp;
+        tmp->parent = root;
+        root->color = BLACK;
+        root->leftNode->color = RED;
+    } else {
+        printf("Critical ERROR while Left rotation: root->parent == NULL\n");
+    }
+}
+
+void RotateRightWithRepainting(RedBlackTree* root){
+    if (root->parent != NULL){
+        RedBlackTree* tmp = root->parent;
+        root->parent = root->parent->parent;
+        if (root->parent != NULL){
+            if (root->parent->leftNode == tmp){
+                root->parent->leftNode = root;
+            } else if (root->parent->rightNode == tmp){
+                root->parent->rightNode = root;
+            }
+        }
+        tmp->leftNode = root->rightNode;
+        if (root->rightNode != NULL)
+            root->rightNode->parent = tmp;
+        root->rightNode = tmp;
+        tmp->parent = root;
+        root->color = BLACK;
+        root->rightNode->color = RED;
+    } else {
+        printf("Critical ERROR while Right rotation: root->parent == NULL\n");
+    }
+}
+
+RedBlackTree* RedBlackTreeBalance(RedBlackTree* root) {
+    while (root->parent != NULL){
+        if (root->color == RED && root->parent->color == RED){
+            if (root->parent->parent != NULL){
+                if (root->parent->parent->leftNode == root->parent){ // we are in the left node in 2:
+                    if (root->parent->parent->rightNode != NULL){
+                        if (root->parent->parent->rightNode->color == RED){
+                            root->parent->parent->color = RED;
+                            root->parent->color = BLACK;
+                            root->parent->parent->rightNode->color = BLACK;
+                            continue;
+                        }
+                    }
+                    if (root->parent->rightNode == root){
+                        RotateLeftWithRepainting(root);
+                        RotateRightWithRepainting(root);
+                        continue;
+                    }
+                    if (root->parent->leftNode == root){
+                        RotateRightWithRepainting(root->parent);
+                        continue;
+                    }
+                }
+                if (root->parent->parent->rightNode == root->parent){ // we are in the right node in 2:
+                    if (root->parent->parent->leftNode != NULL){
+                        if (root->parent->parent->leftNode->color == RED){
+                            root->parent->parent->color = RED;
+                            root->parent->color = BLACK;
+                            root->parent->parent->leftNode->color = BLACK;
+                            continue;
+                        }
+                    }
+                    if (root->parent->leftNode == root){
+                        RotateRightWithRepainting(root);
+                        RotateLeftWithRepainting(root);
+                        continue;
+                    }
+                    if (root->parent->rightNode == root){
+                        RotateLeftWithRepainting(root->parent);
+                        continue;
+                    }
+                }
+            }
+        }
+        root = root->parent;
+    }
+
+    root->color = BLACK; // Function returns the root and it must always be black.
+    return root;
+}
+
+RedBlackTree* RedBlackTreeInsert (RedBlackTree* root, Data data){
+    if (root == NULL)
+        return InitNode(data, BLACK, NULL);
+
+    RedBlackTree* current = root;
+    while (current != NULL){
+        if (current->data.ID > data.ID){
+            if (current->leftNode != NULL){
+                current = current->leftNode;
+                continue;
+            } else {
+                current->leftNode = InitNode(data, RED, current);
+                return RedBlackTreeBalance(current->leftNode);
+            }
+        } else if (current->data.ID < data.ID){
+            if (current->rightNode != NULL){
+                current = current->rightNode;
+                continue;
+            } else {
+                current->rightNode = InitNode(data, RED, current);
+                return RedBlackTreeBalance(current->rightNode);
+            }
+        }
+    }
+    return root;
+}
+
+Data* RedBlackTreeSearch (RedBlackTree* root, unsigned int ID){
+    while (root != NULL){
+        if (root->data.ID == ID)
+            return &(root->data);
+
+        if (root->data.ID > ID){
+            root = root->leftNode;
+            continue;
+        }
+        if (root->data.ID < ID){
+            root = root->rightNode;
+            continue;
+        }
+    }
+    return NULL;
+}
+
+Data GetMaxData (RedBlackTree* root){
+    while (root->rightNode != NULL){
+        root = root->rightNode;
+    }
+    return root->data;
+}
+
+RedBlackTree* GetBrother (RedBlackTree* node){
+    if (node == NULL)
+        return NULL;
+    if (node->parent == NULL)
+        return NULL;
+
+    if (node->parent->leftNode == node)
+        return node->parent->rightNode;
+
+    if (node->parent->rightNode == node)
+        return node->parent->leftNode;
+
+    return NULL;
+}
+
+void CutConnectWithParent (RedBlackTree* current){
+    if (current->parent == NULL)
+        return;
+    if (current->parent->leftNode == current) // cuting link in parent
+        current->parent->leftNode = NULL;
+    else
+        current->parent->rightNode = NULL;
+}
+
+void deleteCase6(RedBlackTree* current){
+    RedBlackTree *brother = GetBrother(current);
+
+    brother->color = current->parent->color;
+    current->parent->color = BLACK;
+
+    if (current == current->parent->leftNode) {
+        if (brother->rightNode != NULL)
+            brother->rightNode->color = BLACK;
+		RotateLeft(current->parent);
+	} else {
+        if (brother->leftNode != NULL)
+		    brother->leftNode->color = BLACK;
+		RotateRight(current->parent);
+	}
+
+}
+
+void deleteCase5(RedBlackTree* current){
+    RedBlackTree *brother = GetBrother(current);
+
+    if (brother->color == BLACK){
+        if (current == current->parent->leftNode &&
+            (((brother->rightNode == NULL)) || (brother->rightNode == NULL || brother->rightNode->color == BLACK)) &&
+            ((brother->leftNode != NULL) && brother->leftNode->color == RED)){
+                brother->color = RED;
+                brother->leftNode->color = BLACK;
+                RotateRight(brother);
+        } else if ( current == current->parent->rightNode &&
+                    ((brother->leftNode == NULL) || brother->leftNode != NULL && brother->leftNode->color == BLACK) &&
+                    ((brother->rightNode != NULL) && brother->rightNode->color == RED)){
+                brother->color = RED;
+                brother->rightNode->color = BLACK;
+                RotateLeft(brother);
+            }
+    }
+    deleteCase6(current);
+}
+
+void deleteCase4(RedBlackTree* current){
+    RedBlackTree *brother = GetBrother(current);
+
+    if (current->parent->color == RED && ((brother == NULL) || brother->color == BLACK) &&
+        (((brother->leftNode == NULL)) || (brother->leftNode != NULL && brother->leftNode->color == BLACK)) &&
+        (((brother->rightNode == NULL)) || (brother->rightNode != NULL && brother->rightNode->color == BLACK))){
+        brother->color = RED;
+        current->parent->color = BLACK;
+    } else
+        deleteCase5(current);
+}
+
+void deleteCase3(RedBlackTree* current){
+    RedBlackTree *brother = GetBrother(current);
+
+    if ((current->parent->color == BLACK && (brother == NULL || brother->color == BLACK)) &&
+    (((brother->leftNode == NULL)) || (brother->leftNode != NULL && brother->leftNode->color == BLACK)) &&
+    (((brother->rightNode == NULL)) || (brother->rightNode != NULL && brother->rightNode->color == BLACK))){
+        brother->color = RED;
+        deleteCase1(current->parent);
+    } else
+        deleteCase4(current);
+}
+
+void deleteCase2(RedBlackTree* current){
+    RedBlackTree *brother = GetBrother(current);
+
+    if (brother->color == RED){
+        current->parent->color = RED;
+        brother->color = BLACK;
+        if (current == current->parent->leftNode)
+            RotateLeft(current->parent);
+        else
+            RotateRight(current->parent);
+    }
+
+    deleteCase3(current);
+}
+
+RedBlackTree* deleteCase1(RedBlackTree* current){
+    if (current->parent != NULL){
+        deleteCase2(current);
+        return current;
+    } else
+        return NULL;
+}
+
+RedBlackTree* RedBlackTreeDelete (RedBlackTree* root, unsigned int ID){
+    RedBlackTree* current = root;
+
+    while (current != NULL){ // the current implementation does not signal an error when deleting a non-existent element!
+        if (current->data.ID == ID){    // node swap < - >
+            if (current->leftNode != NULL && current->rightNode != NULL){
+                Data data = GetMaxData(current->leftNode);
+                root = RedBlackTreeDelete(root, data.ID);
+                current->data = data;
+                return root;
+            }
+
+            if (current->color == RED){ // deleting leaf is red
+                CutConnectWithParent(current);
+                free(current);
+                return root;
+            } else {
+                RedBlackTree* son = (current->leftNode == NULL) ? current->rightNode : current->leftNode; // get son or null
+                if (son != NULL){
+                    current->data = son->data;
+                    CutConnectWithParent(son);
+                    free(son);
+                    return root;
+                } else {
+                    root = deleteCase1(current);
+                    if (root)
+                        while (root->parent != NULL)
+                            root = root->parent;
+
+                    CutConnectWithParent(current);
+                    free(current);
+                    break;
+                }
+            }
+
+        }
+        if (current->data.ID > ID){
+            current = current->leftNode;
+            continue;
+        }
+        if (current->data.ID < ID){
+            current = current->rightNode;
+            continue;
+        }
+    }
+    if (root != NULL)
+        root->color = BLACK;
+    return root;
+}
+
+void RedBlackTreeFree(RedBlackTree* root){
+    if (root == NULL)
+        return;
+    if (root->leftNode != NULL)
+        RedBlackTreeFree (root->leftNode);
+
+    if (root->rightNode != NULL)
+        RedBlackTreeFree (root->rightNode);
+
+        free(root);
+}
+
+bool validateRBTree(RedBlackTree* node, int blackCount, int* pathBlackCount) {
+    if (node == NULL) {
+        int totalBlack = blackCount + 1;
+        if (*pathBlackCount == -1) {
+            *pathBlackCount = totalBlack;
+        } else if (totalBlack != *pathBlackCount) {
+            return false;
+        }
+        return true;
+    }
+
+    // Property: if the node is red, its children must be black
+    if (node->color == RED) {
+        if ((node->leftNode && node->leftNode->color == RED) ||
+            (node->rightNode && node->rightNode->color == RED)) {
+            return false;
+        }
+    }
+
+    // Update the black node counter
+    int newBlackCount = blackCount;
+    if (node->color == BLACK) {
+        newBlackCount++;
+    }
+
+    return validateRBTree(node->leftNode, newBlackCount, pathBlackCount) &&
+           validateRBTree(node->rightNode, newBlackCount, pathBlackCount);
+}
+
+bool isValidRedBlackTree(RedBlackTree* root) {
+    if (root == NULL) return true;
+
+    if (root->color != BLACK) return false;
+
+    int pathBlackCount = -1;
+    return validateRBTree(root, 0, &pathBlackCount);
+}

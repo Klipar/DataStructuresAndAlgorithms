@@ -12,3 +12,6 @@ Write a program that reads N sequences of bracket pairs ( ), [ ], <>, { } (nesti
 
 ## Binary Decision Diagram (BDD) for Boolean functions
 Create a program that builds a reduced Binary Decision Diagram (BDD) representing a given Boolean function, implementing BDD_create (build a reduced BDD from a Boolean expression and a variable order), BDD_create_with_best_order (try at least N different variable orders and return the BDD with the fewest nodes), and BDD_use (evaluate the function for a given input combination by traversing the BDD from root to leaf, returning '1', '0', or -1 on error). You may not use existing BDD libraries; reduction must be done (ideally incrementally), and correctness must be verified by testing all input combinations for functions with at least 13 variables and at least 100 different Boolean functions.
+
+## Searching in dynamic sets
+Implement and compare at least two of these three data structures — two balanced binary search trees (excluding AVL and Splay; e.g. red-black, (2,3), (2,3,4), weight-balanced) and a hash table with open addressing and double hashing (including resizing) — measuring insert, search, and delete performance per operation with a dedicated test program, and documenting which structure suits which usage scenario.
