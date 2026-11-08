@@ -9,3 +9,6 @@ Write a program that reads N pairs of natural numbers (each up to 18446744073709
 
 ## Brackets
 Write a program that reads N sequences of bracket pairs ( ), [ ], <>, { } (nesting allowed) and for each sequence counts the number of errors — a missing opening/closing bracket or mismatched pair types — outputting each count on a separate line.
+
+## Binary Decision Diagram (BDD) for Boolean functions
+Create a program that builds a reduced Binary Decision Diagram (BDD) representing a given Boolean function, implementing BDD_create (build a reduced BDD from a Boolean expression and a variable order), BDD_create_with_best_order (try at least N different variable orders and return the BDD with the fewest nodes), and BDD_use (evaluate the function for a given input combination by traversing the BDD from root to leaf, returning '1', '0', or -1 on error). You may not use existing BDD libraries; reduction must be done (ideally incrementally), and correctness must be verified by testing all input combinations for functions with at least 13 variables and at least 100 different Boolean functions.
